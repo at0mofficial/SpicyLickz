@@ -8,18 +8,32 @@ const config: Config = {
   ],
   theme: {
     extend: {
+
       screens: {
         'xs': '426px',
       },
+
      fontFamily: {
       poppins: ['Poppins', 'sans-serif']
      },
+
      colors: {
       'dark': '#212529',
       'primary': '#ff2f00',
       'secondary': '#22313f',
       'gray': '#3c3c3c'
      },
+
+     animation: {
+      'infinite-scroll': 'scroll 80s linear infinite'
+     },
+
+     keyframes: {
+      'scroll': {
+        '100%': { transform: 'translate(calc(-50% - 20px))' }
+      }
+    }
+
     },
   },
   plugins: [],

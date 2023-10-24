@@ -21,4 +21,11 @@
   .card-wrapper {
     @apply grid xl:grid-cols-3 lg:grid-cols-3 sm:grid-cols-2 grid-cols-1 justify-items-center md:px-4 xs:px-3 gap-5 px-2;
   }
+  .animate-pause {
+    animation-play-state: paused;
+  }
+}
+
+.infinite_scroller_mask {
+  mask: linear-gradient(90deg, transparent, white 20%, white 80%, transparent);
 }
