@@ -23,17 +23,6 @@ const config: Config = {
       'secondary': '#22313f',
       'gray': '#3c3c3c'
      },
-
-     animation: {
-      'infinite-scroll': 'scroll 80s linear infinite'
-     },
-
-     keyframes: {
-      'scroll': {
-        '100%': { transform: 'translate(calc(-50% - 20px))' }
-      }
-    }
-
     },
   },
   plugins: [],

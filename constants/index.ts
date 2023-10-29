@@ -5,6 +5,11 @@ import youtube from "@/public/youtube_logo.svg";
 import slack from "@/public/slack_logo.svg";
 import instagram from "@/public/instagram_logo.svg";
 import x from "@/public/x_logo.svg";
+import person1 from '@/public/person1.jpg';
+import person2 from '@/public/person2.jpg';
+import person3 from '@/public/person3.jpg';
+import person4 from '@/public/person4.jpg';
+import person5 from '@/public/person5.jpg';
 
 export const featureItems = [
   {
@@ -56,3 +61,43 @@ export const socialMedia = [
   { name: "Instagram", icon: instagram },
   { name: "X", icon: x },
 ];
+
+
+export const dummyReviews = [
+  {
+    userName: "User 1",
+    reviewTitle: "Great Experience",
+    rating: 5,
+    imgUrl: person1,
+    reviewDescription: "Had a wonderful experience at this place. Highly recommended.",
+  },
+  {
+    userName: "User 2",
+    reviewTitle: "Good Service",
+    rating: 4,
+    imgUrl: person2,
+    reviewDescription: "The service was excellent, and the staff was very friendly.",
+  },
+  {
+    userName: "User 3",
+    reviewTitle: "Average",
+    rating: 3,
+    imgUrl: person3,
+    reviewDescription: "The experience was just okay. It could be better.",
+  },
+  {
+    userName: "User 4",
+    reviewTitle: "Not Recommended",
+    rating: 1,
+    imgUrl: person4,
+    reviewDescription: "I would not recommend this place. Bad experience.",
+  },
+  {
+    userName: "User 5",
+    reviewTitle: "Excellent Food",
+    rating: 5,
+    imgUrl: person5,
+    reviewDescription: "The food here is amazing. Will definitely come back.",
+  },
+];
+
