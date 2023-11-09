@@ -4,12 +4,12 @@ import Link from "next/link";
 
 const Navbar = () => {
   return (
-    <header className="px-5 py-3">
+    <header className="px-5 py-3 max-xs:px-3 w-full bg-white z-50">
       <nav className="flex justify-between items-center text-base text-dark">
-        <Link href="/">
-          <Image src={logo} alt="logo" height={46} className="max-sm:scale-90" />
+        <Link href="/" className="max-xs:scale-[80%]">
+          <Image src={logo} alt="logo" height={46} className="" />
         </Link>
-        <Link href="/on-the-menu" className="py-[7px] tracking-[2px] [word-spacing:-2px] font-semibold hoverEffect hidden md:block">ON THE MENU
+        <Link href="/on-the-menu" className="py-[7px] tracking-[2px] [word-spacing:-2px] font-semibold hoverEffect max-sm:ml-[-7%]">ON THE MENU
         </Link>
 
         <div className="flex gap-2 mr-2">

@@ -27,6 +27,9 @@
   .hoverEffect {
     @apply relative after:content-[''] after:bg-dark after:bottom-0 after:h-[3px] after:w-0 after:absolute after:left-[50%] hover:after:w-full hover:after:left-0 after:ease-out after:transition-all after:duration-300;
   }
+  .hoverEffect2 {
+    @apply relative after:content-[''] after:bg-dark after:bottom-[2px] after:h-[1px] after:w-0 after:absolute after:left-[50%] hover:after:w-full hover:after:left-0 after:ease-out after:transition-all after:duration-100;
+  }
   .btn-primary {
     @apply uppercase tracking-[1px] text-white px-5 py-2.5 border-2 border-primary transition-all ease-in-out duration-100 hover:bg-primary;
   }
@@ -35,5 +38,13 @@
   }
   .dragging {
     @apply cursor-grab select-none;
+  }
+  .button-with-image:hover .hidden-image {
+    display: inline-block;
+  }
+
+  .login-background {
+    background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.3)),
+      url(/login_background.jpg);
   }
 }

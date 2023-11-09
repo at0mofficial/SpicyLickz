@@ -5,7 +5,7 @@ import { featureItems } from '@/constants'
 
 const Feature = () => {
   return (
-    <section className="flex flex-col mt-[70px] justify-between items-center pt-10">
+    <section className="flex flex-col mt-[20px] justify-between items-center pt-10">
         <h2 className="text-[50px] font-extrabold text-dark uppercase">Why us?</h2>
       <div className="bg-primary h-[2px] w-[80px]"></div>
       <div className="flex flex-wrap w-full gap-10 justify-center items-start mt-10 bg-secondary p-10">
