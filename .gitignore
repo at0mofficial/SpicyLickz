@@ -4,9 +4,11 @@
 /node_modules
 /.pnp
 .pnp.js
-
 # testing
 /coverage
+
+#sendgrid/mail
+./sendgrid.env
 
 # next.js
 /.next/

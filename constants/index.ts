@@ -10,6 +10,7 @@ import person2 from "@/public/person2.jpg";
 import person3 from "@/public/person3.jpg";
 import person4 from "@/public/person4.jpg";
 import person5 from "@/public/person5.jpg";
+import mongoose from "mongoose";
 
 export const featureItems = [
   {

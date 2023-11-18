@@ -1,86 +1,190 @@
-'use client'
+"use client";
+import { registerUser } from "@/lib/actions/user.actions";
+import { testEmail, testFullName, testPassword } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
 import React, { useState } from "react";
 
 const Signup = () => {
+  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [emailError, setEmailError] = useState("");
-  const [passwordError, setPasswordError] = useState("");
-  const [isFormValid, setIsFormValid] = useState(true);
 
+  const [fullNameError, setFullNameError] = useState("empty");
+  const [emailError, setEmailError] = useState("empty");
+  const [passwordError, setPasswordError] = useState("empty");
+  const [confirmPasswordError, setConfirmPasswordError] = useState("empty");
+
+  const [fullNameBorder, setFullNameBorder] = useState("border-dark");
+  const [emailBorder, setEmailBorder] = useState("border-dark");
+  const [passwordBorder, setPasswordBorder] = useState("border-dark");
+  const [confirmPasswordBorder, setConfirmPasswordBorder] =
+    useState("border-dark");
+
+  const isFormValid = !(
+    emailError ||
+    passwordError ||
+    confirmPasswordError ||
+    fullNameError
+  );
+
+  const handleFullNameChange = (e: any) => {
+    setFullName(e.target.value);
+    if (!e.target.value.trim()) {
+      setFullNameBorder("border-red-500");
+    } else if (!testFullName(e.target.value)) {
+      setFullNameBorder("border-red-500");
+    } else if (e.target.value.length < 3 || e.target.value.length > 25) {
+      setFullNameBorder("border-red-500");
+    } else {
+      setFullNameBorder("border-green-500");
+      setEmailError("");
+    }
+  };
   const handleEmailChange = (e: any) => {
     setEmail(e.target.value);
+    if (!testEmail(e.target.value)) {
+      setEmailBorder("border-red-500");
+    } else {
+      setEmailBorder("border-green-500");
+      setEmailError("");
+    }
   };
 
   const handlePasswordChange = (e: any) => {
     setPassword(e.target.value);
+    if (!testPassword(e.target.value)) {
+      setPasswordBorder("border-red-500");
+    } else {
+      setPasswordBorder("border-green-500");
+      setPasswordError("");
+    }
   };
 
   const handleConfirmPasswordChange = (e: any) => {
     setConfirmPassword(e.target.value);
+    if (password.length > 0 && passwordError.length == 0) {
+      if (e.target.value !== password) {
+        setConfirmPasswordBorder("border-red-500");
+      } else {
+        setConfirmPasswordBorder("border-green-500");
+        setConfirmPasswordError("");
+      }
+    }
   };
 
+  const validateFullName = () => {
+    if (!fullName.trim()) {
+      setFullNameError("Name cannot be empty");
+      setFullNameBorder("border-red-500");
+    } else if (!testFullName(fullName)) {
+      setFullNameError("Special characters not allowed!");
+      setFullNameBorder("border-red-500");
+    } else if (fullName.length < 3) {
+      setFullNameError("Name should be at least 3 characters!");
+      setFullNameBorder("border-red-500");
+    } else if (fullName.length > 25) {
+      setFullNameError("Max 25 characters allowed!");
+      setFullNameBorder("border-red-500");
+    } else {
+      setFullNameBorder("border-green-500");
+      setFullNameError("");
+    }
+  };
   const validateEmail = () => {
     if (!email.trim()) {
       setEmailError("Email cannot be empty");
-      setIsFormValid(false);
+      setEmailBorder("border-red-500");
     } else {
-      const emailPattern = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-      if (!emailPattern.test(email.trim())) {
+      if (!testEmail(email)) {
         setEmailError("Please enter a valid email address");
-        setIsFormValid(false);
+        setEmailBorder("border-red-500");
       } else {
         setEmailError("");
+        setEmailBorder("border-green-500");
       }
     }
   };
 
   const validatePassword = () => {
-    const passwordPattern =
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,16}$/;
-    if (!passwordPattern.test(password)) {
+    if (!password) {
+      setPasswordError("Password cannot be empty");
+      setPasswordBorder("border-red-500");
+    } else if (!testPassword(password)) {
       setPasswordError(
         "Password must be 8-16 characters long and contain at least 1 uppercase letter, 1 lowercase letter, a special character, and a number"
       );
-      setIsFormValid(false);
-    } else if (confirmPassword !== password) {
-      setPasswordError("Passwords do not match");
-      setIsFormValid(false);
+      setPasswordBorder("border-red-500");
     } else {
       setPasswordError("");
-      setIsFormValid(true);
+      setPasswordBorder("border-green-500");
     }
   };
 
-  const handleSignup = () => {
+  const validateConfirmPassword = () => {
+    if (password.length > 0 && passwordError.length == 0) {
+      if (confirmPassword !== password) {
+        setConfirmPasswordError("Passwords do not match");
+        setConfirmPasswordBorder("border-red-500");
+      } else {
+        setConfirmPasswordError("");
+        setConfirmPasswordBorder("border-green-500");
+      }
+    }
+  };
+
+  const handleSignup = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    validateFullName();
     validateEmail();
     validatePassword();
-
+    validateConfirmPassword();
+    const trimmedEmail = email.trim();
+    const cleanedFullName = fullName.trim().replace(/\s+/g, " ");
     if (isFormValid) {
-      const trimmedEmail = email.trim();
-      function registerUser() {
-        const userData = {
-          trimmedEmail,
-          password,
-        };
-      }
+      registerUser({
+        email: trimmedEmail,
+        password: password,
+        fullName: cleanedFullName,
+      });
     }
   };
 
   return (
     <section className="flex flex-col justify-center items-center h-full py-[100px] login-background bg-cover bg-fixed bg-center">
-      <div className="flex flex-col items-center text-center bg-white text-dark px-8 py-8 md:py-[50px] lg:py-[60px] md:w-[90%] w-[90%] max-w-[800px] gap-14 rounded-lg">
-        <div className="flex flex-col">
+      <main className="flex flex-col items-center text-center bg-white text-dark px-8 py-8 md:py-[50px] lg:py-[60px] md:w-[90%] w-[90%] max-w-[800px] gap-14 rounded-lg">
+        <div className="flex flex-col items-center justify-center gap-2">
           <Image src="login_logo.svg" alt="Login Logo" width={90} height={80} />
           <h3 className="uppercase text-xl font-semibold mt-[-4px]">
-            Register
+            Create an Account
           </h3>
         </div>
 
-        <div className="flex flex-col items-start  justify-center grow gap-8">
+        <form
+          onSubmit={handleSignup}
+          className="flex flex-col items-start  justify-center grow gap-8"
+        >
+          <div className="relative flex flex-col text-left">
+            <label htmlFor="name" className="font-semibold">
+              Full Name
+            </label>
+            <input
+              type="text"
+              name="name"
+              id="name"
+              placeholder="example@email.com"
+              value={fullName}
+              onChange={handleFullNameChange}
+              onBlur={validateFullName}
+              className={`${fullNameBorder} placeholder:text-sm placeholder:font-normal bg-transparent font-semibold outline-none max-sm:w-[95%] max-w-[215px] border-b-2`}
+            />
+            {fullNameError && fullNameError !== "empty" && (
+              <span className="text-red-500 text-sm mt-1 max-sm:w-[95%] max-w-[215px]">
+                {fullNameError}
+              </span>
+            )}
+          </div>
           <div className="relative flex flex-col text-left">
             <label htmlFor="email" className="font-semibold">
               Email
@@ -88,15 +192,14 @@ const Signup = () => {
             <input
               type="email"
               name="email"
+              id="email"
               placeholder="example@email.com"
               value={email}
               onChange={handleEmailChange}
               onBlur={validateEmail}
-              className={`${
-                emailError ? "border-red-600" : ""
-              } placeholder:text-sm placeholder:font-normal bg-transparent font-semibold outline-none max-sm:w-[95%] max-w-[215px] border-b-2`}
+              className={`${emailBorder} placeholder:text-sm placeholder:font-normal bg-transparent font-semibold outline-none max-sm:w-[95%] max-w-[215px] border-b-2`}
             />
-            {emailError && (
+            {emailError && emailError !== "empty" && (
               <span className="text-red-500 text-sm mt-1 max-sm:w-[95%] max-w-[215px]">
                 {emailError}
               </span>
@@ -109,15 +212,19 @@ const Signup = () => {
             <input
               type="password"
               name="password"
+              id="password"
               placeholder="abcd@123"
               value={password}
               onChange={handlePasswordChange}
-              onBlur={validatePassword}
-              className={`${
-                passwordError ? "border-red-600" : ""
-              } placeholder:text-sm placeholder:font-normal bg-transparent font-semibold outline-none max-sm:w-[95%] max-w-[215px] border-b-2`}
+              onBlur={() => {
+                validatePassword();
+                if (confirmPassword.length > 0) {
+                  validateConfirmPassword();
+                }
+              }}
+              className={`${passwordBorder} placeholder:text-sm placeholder:font-normal bg-transparent font-semibold outline-none max-sm:w-[95%] max-w-[215px] border-b-2`}
             />
-            {passwordError && (
+            {passwordError && passwordError !== "empty" && (
               <span className="text-red-500 text-sm mt-1 max-sm:w-[95%] max-w-[215px]">
                 {passwordError}
               </span>
@@ -130,21 +237,27 @@ const Signup = () => {
             <input
               type="password"
               name="confirmpassword"
+              id="confirmpassword"
               placeholder="abcd@123"
               value={confirmPassword}
               onChange={handleConfirmPasswordChange}
-              onBlur={validatePassword}
-              className={`${
-                passwordError === "Passwords do not match."
-                  ? "border-red-600"
-                  : ""
-              } placeholder:text-sm placeholder:font-normal bg-transparent font-semibold outline-none max-sm:w-[95%] max-w-[215px] border-b-2`}
+              onBlur={validateConfirmPassword}
+              className={`${confirmPasswordBorder} placeholder:text-sm placeholder:font-normal bg-transparent font-semibold outline-none max-sm:w-[95%] max-w-[215px] border-b-2`}
             />
+            {confirmPasswordError && confirmPasswordError !== "empty" && (
+              <span className="text-red-500 text-sm mt-1 max-sm:w-[95%] max-w-[215px]">
+                {confirmPasswordError}
+              </span>
+            )}
           </div>
           <button
-            onClick={handleSignup}
+            type="submit"
             disabled={!isFormValid}
-            className={`flex gap-1 items-center text-lg font-semibold relative ${isFormValid? "after:content-[''] after:bg-dark after:bottom-[2px] after:h-[2px] after:w-0 after:rounded-full after:absolute after:left-0 hover:after:w-full after:ease-out after:transition-all after:duration-700 button-with-image":""}`}
+            className={`flex gap-1 items-center text-lg font-semibold relative ${
+              isFormValid
+                ? "after:content-[''] after:bg-dark after:bottom-[2px] after:h-[2px] after:w-0 after:rounded-full after:absolute after:left-0 hover:after:w-full after:ease-out after:transition-all after:duration-700 button-with-image"
+                : ""
+            }`}
           >
             Register
             <Image
@@ -155,14 +268,14 @@ const Signup = () => {
               className="hidden-image hidden transition-all duration-1000"
             />
           </button>
-        </div>
+        </form>
         <span className="md:flex-row md:gap-1 items-center flex flex-col text-sm font-semibold">
           Already have an account?
           <Link href={"/login"} className="font-bold hoverEffect2">
             LogIn
           </Link>
         </span>
-      </div>
+      </main>
     </section>
   );
 };

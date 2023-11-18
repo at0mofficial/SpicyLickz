@@ -1,6 +1,10 @@
 import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+  },
   email: {
     type: String,
     required: true,
@@ -10,35 +14,39 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  name: {
-    type: String,
-    required: true,
-  },
   imageUrl: {
     type: String,
+    default: undefined,
   },
   address: {
     type: String,
+    default: undefined,
   },
-  cart: [
-    {
-      meal: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Meal",
-        required: true,
+  cart: {
+    type: [
+      {
+        meal: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Meal",
+          required: true,
+        },
+        quantity: {
+          type: Number,
+          default: 1,
+        },
       },
-      quantity: {
-        type: Number,
-        default: 1,
-      },
-    },
-  ],
-  varification: {
+    ],
+    default: [],
+  },
+  verification: {
     code: {
       type: String,
+      required: true,
+      unique: true,
     },
-    expiry: {
+    createdAt: {
       type: Date,
+      default: Date.now(),
     },
   },
   isVerified: {
