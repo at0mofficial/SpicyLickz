@@ -1,6 +1,8 @@
+'use client'
 import Image from "next/image";
 import logo from "@/public/logo.png";
 import Link from "next/link";
+import { signIn } from "next-auth/react";
 
 const Navbar = () => {
   return (
@@ -13,7 +15,7 @@ const Navbar = () => {
         </Link>
 
         <div className="flex gap-2 mr-2">
-          <Link href="/login" className="hover:text-primary">Login</Link>
+          <button onClick={()=>{signIn();}} className="hover:text-primary">Login</button>
           <span className="hidden md:block">/</span>
           <Link href="/signup" className="hover:text-primary hidden md:block">Signup</Link>
         </div>

@@ -11,13 +11,16 @@ const TopPicks = async () => {
       </h2>
       <div className="bg-primary h-[2px] w-[80px]"></div>
       <div className="mt-14 w-full card-wrapper">
-        {topPicks.map((meal) => (
+        {topPicks.map((meal: any) => (
           <MenuCard
+            key={meal._id}
+            id={meal._id.toString()}
             title={meal.title}
             description={meal.description}
-            price={meal.price}
+            price={`${meal.price}`}
             imageUrl={meal.imageUrl}
           />
+          
         ))}
       </div>
     </section>

@@ -1,8 +1,8 @@
 import Image, { StaticImageData } from "next/image";
 
 interface featureItem {
-  title: String;
-  desc: String;
+  title: string;
+  desc: string;
   imgUrl: StaticImageData;
 }
 const FeatureCard = ({ title, desc, imgUrl }: featureItem) => {

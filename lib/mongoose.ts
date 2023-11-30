@@ -11,6 +11,7 @@ export const connectToDB = async () => {
     isConnected = true;
     console.log("Connected to mongo_db");
   } catch (error: any) {
-    throw new Error(`Failed to connect to mongo_db: ${error.message}`);
+    console.error("Error connecting to mongo_db", error);
+    throw new Error(`Failed to connect to mongo_db!`);
   }
 };

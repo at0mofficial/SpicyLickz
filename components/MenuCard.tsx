@@ -1,11 +1,13 @@
+'use client'
 import Image from "next/image";
 import React from "react";
 
 interface mealCardProps {
-  title: String;
-  description: String;
-  price: String;
-  imageUrl: String;
+  id: string;
+  title: string;
+  description: string;
+  price: string;
+  imageUrl: string;
 }
 const MenuCard = ({
   title,
@@ -13,10 +15,15 @@ const MenuCard = ({
   price,
   imageUrl,
 }: mealCardProps) => {
+
+  const handleAddToCart = () => {
+
+  }
+
   return (
     <div className="flex bg-white flex-col w-full rounded-lg shadow-xl">
       <div className="relative aspect-[16/9] max-sm:aspect-[4/3] w-full">
-        <button className="absolute z-10 right-3 top-3 px-5 py-2.5 bg-dark hover:bg-[#171b1f] hidden xs:block text-xs font-medium text-white rounded-[4px]">
+        <button onClick={handleAddToCart} className="absolute z-10 right-3 top-3 px-5 py-2.5 bg-dark hover:bg-[#171b1f] hidden xs:block text-xs font-medium text-white rounded-[4px]">
           Add to Cart
         </button>
         <Image
@@ -39,7 +46,7 @@ const MenuCard = ({
             {price}
           </span>
         </div>
-        <button className="px-5 py-2.5 xs:hidden bg-dark hover:bg-[#171b1f] text-base font-semibold text-white rounded-[4px]">
+        <button onClick={handleAddToCart} className="px-5 py-2.5 xs:hidden bg-dark hover:bg-[#171b1f] text-base font-semibold text-white rounded-[4px]">
           Add to Cart
         </button>
       </div>

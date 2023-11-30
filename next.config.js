@@ -2,8 +2,7 @@
 const nextConfig = {
   reactStrictMode: false,
   experimental: {
-    serverActions: true,
-    serverComponentsExternalPackages: ["mongoose"],
+    serverComponentsExternalPackages: ['mongoose'],
   },
   typescript: {
     ignoreBuildErrors: true,
