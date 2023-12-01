@@ -1,10 +1,8 @@
-import { mergeLocalAndDBCart } from "@/lib/actions/user.actions";
 import User from "@/lib/models/user.model";
 import { connectToDB } from "@/lib/mongoose";
 import { comparePassword } from "@/lib/utils";
 import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { UserInfo } from "os";
 
 export const authOptions: NextAuthOptions = {
   session: {
@@ -51,7 +49,6 @@ export const authOptions: NextAuthOptions = {
           if (!isPasswordValid) {
             throw new Error("Invalid email or password!");
           }
-          // await mergeLocalAndDBCart(user._id);
           const userInfo = {
             id: user._id,
             name: user.name,

@@ -1,4 +1,5 @@
 "use client";
+import { mergeLocalAndDBCart } from "@/lib/actions/user.actions";
 import { resendVerificationEmail } from "@/lib/sendGridMail";
 import { testEmail } from "@/lib/utils";
 import { signIn } from "next-auth/react";
@@ -9,6 +10,7 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 
 const Login = () => {
+
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl");
@@ -78,6 +80,11 @@ const Login = () => {
         });
 
         if (!res?.error) {
+          const localStorageCartString = localStorage.getItem("cart");
+          if(localStorageCartString){
+            await mergeLocalAndDBCart(localStorageCartString);
+            localStorage.removeItem("cart");
+          }
           if (callbackUrl && callbackUrl !== "/signup") {
             router.push(callbackUrl);
           } else {

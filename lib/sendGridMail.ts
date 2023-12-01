@@ -1,10 +1,11 @@
+"use server"
 import sgMail from "@sendgrid/mail";
 import { connectToDB } from "./mongoose";
 import User from "./models/user.model";
 import { generateVerificationCode } from "./utils";
 sgMail.setApiKey(`${process.env.SENDGRID_API_KEY}`);
 
-export function sendVerificationEmail({
+export async function sendVerificationEmail({
   userEmail,
   userName,
   verificationLink,
@@ -46,7 +47,7 @@ export function sendVerificationEmail({
       });
   });
 }
-export function resendVerificationEmail(userEmail: string) {
+export async function resendVerificationEmail(userEmail: string) {
   return new Promise<void>(async (resolve, reject) => {
     try {
       await connectToDB();

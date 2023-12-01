@@ -41,7 +41,7 @@ const userSchema = new mongoose.Schema({
   verification: {
     code: {
       type: String,
-      required: true,
+      default: undefined,
       unique: true,
     },
     createdAt: {

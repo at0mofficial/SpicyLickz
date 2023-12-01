@@ -1,9 +1,11 @@
 "use server";
 
+import { getServerSession } from "next-auth";
 import User from "../models/user.model";
 import { connectToDB } from "../mongoose";
 import { sendVerificationEmail } from "../sendGridMail";
 import { generateVerificationCode, hashPassword } from "../utils";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 export async function registerUser({
   email,
@@ -34,6 +36,7 @@ export async function registerUser({
           code: verificationCode,
         },
       });
+
       if (!newUser) {
         reject(new Error("Error creating user."));
         return;
@@ -70,7 +73,7 @@ export async function activateUser(token: string): Promise<void> {
         return;
       }
       user.isVerified = true;
-      user.verification.code = "undefined";
+      user.verification.code = undefined;
       await user.save();
       resolve();
     } catch (err: any) {
@@ -238,23 +241,21 @@ export async function decreaseDBMealQty(
   });
 }
 
-export async function mergeLocalAndDBCart(userId: string): Promise<void> {
+export async function mergeLocalAndDBCart(localStorageCartString:string): Promise<void> {
+  const session = await getServerSession(authOptions);
+  console.log(session);
+  if (!session || !session.user) return;
+  const userEmail = session.user.email as string;
   return new Promise(async (resolve, reject) => {
     try {
       await connectToDB();
-      const user = await User.findById(userId);
+      const user = await User.findOne({ email: userEmail });
 
       if (!user) {
         console.error("Error merging carts: User not found!");
         return;
       }
 
-      const localStorageCartString = localStorage.getItem("cart");
-      if (!localStorageCartString) {
-        console.log("No local storage cart to merge.");
-        resolve();
-        return;
-      }
       const localCart = JSON.parse(localStorageCartString);
 
       localCart.forEach((localCartItem: { meal: string; quantity: number }) => {
@@ -264,21 +265,13 @@ export async function mergeLocalAndDBCart(userId: string): Promise<void> {
         );
 
         if (existingCartItemIndex === -1) {
-          // If the item doesn't exist in MongoDB cart, add it
           user.cart.push({
             meal: localCartItem.meal,
             quantity: localCartItem.quantity,
           });
         }
-        // If the item exists, do nothing (you may want to update quantity if needed)
       });
-
-      // Save the user with the merged cart
       await user.save();
-
-      // Clear the local storage cart
-      localStorage.removeItem("cart");
-
       console.log("Carts merged successfully!");
       resolve();
     } catch (err: any) {
