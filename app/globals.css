@@ -46,3 +46,16 @@
       url(/login_background.jpg);
   }
 }
+
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgb(134, 150, 160, 0.33);
+  min-height: 65px;
+  border-radius: 50px;
+}

@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@headlessui/react": "^1.7.17",
     "@sendgrid/mail": "^7.7.0",
     "bcryptjs": "^2.4.3",
     "mongoose": "^8.0.0",
@@ -18,6 +19,7 @@
     "react": "^18",
     "react-dom": "^18",
     "react-hot-toast": "^2.4.1",
+    "react-places-autocomplete": "^7.3.0",
     "react-spinners": "^0.13.8"
   },
   "devDependencies": {
@@ -25,6 +27,7 @@
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "@types/react-places-autocomplete": "^7.2.14",
     "autoprefixer": "^10",
     "postcss": "^8",
     "tailwindcss": "^3",

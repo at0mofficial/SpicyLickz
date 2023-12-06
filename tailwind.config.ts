@@ -10,6 +10,7 @@ const config: Config = {
     extend: {
       screens: {
         'xs': '426px',
+        'xss': '375px',
       },
 
      fontFamily: {

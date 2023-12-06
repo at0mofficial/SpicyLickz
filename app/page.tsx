@@ -5,7 +5,7 @@ import TopPicks from "@/components/TopPicks";
 
 export default function Home() {
   return (
-    <main className="">
+    <main>
       <Hero />
       <TopPicks />
       <Feature />
