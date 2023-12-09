@@ -4,6 +4,7 @@ import { testEmail, testFullName, testPassword } from "@/lib/utils";
 import { signIn } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
+
 import React, { useState } from "react";
 import toast from "react-hot-toast";
 
@@ -25,6 +26,7 @@ const Signup = () => {
   useState("border-dark");
   
   const [isRegisterd, setIsRegistered] = useState(false);
+
 
   const isFormValid = !(
     emailError ||
@@ -160,6 +162,7 @@ const Signup = () => {
       }
     }
   };
+  
   if(isRegisterd){
     return (
       <div className="flex-col justify-center items-center lg:text-center text-dark lg:p-[100px] px-10 py-[80px]">
@@ -177,133 +180,134 @@ const Signup = () => {
     </div>)
   }
   else{
-    return (
-      <section className="flex flex-col justify-center items-center h-full py-[100px] login-background bg-cover bg-fixed bg-center">
-        <main className="flex flex-col items-center text-center bg-white text-dark px-8 py-8 md:py-[50px] lg:py-[60px] md:w-[90%] w-[90%] max-w-[800px] gap-14 rounded-lg">
-          <div className="flex flex-col items-center justify-center gap-2">
-            <Image src="login_logo.svg" alt="Login Logo" width={90} height={80} />
-            <h3 className="uppercase text-xl font-semibold mt-[-4px]">
-              Create an Account
-            </h3>
-          </div>
-  
-          <form
-            onSubmit={handleSignup}
-            className="flex flex-col items-start  justify-center grow gap-8"
-          >
-            <div className="relative flex flex-col text-left">
-              <label htmlFor="name" className="font-semibold">
-                Full Name
-              </label>
-              <input
-                type="text"
-                name="name"
-                id="name"
-                placeholder="example@email.com"
-                value={fullName}
-                onChange={handleFullNameChange}
-                onBlur={validateFullName}
-                className={`${fullNameBorder} placeholder:text-sm placeholder:font-normal bg-transparent font-semibold outline-none max-sm:w-[95%] max-w-[215px] border-b-2`}
-              />
-              {fullNameError && fullNameError !== "empty" && (
-                <span className="text-red-500 text-sm mt-1 max-sm:w-[95%] max-w-[215px]">
-                  {fullNameError}
-                </span>
-              )}
+      return (
+        <section className="flex flex-col justify-center items-center h-full py-[100px] login-background bg-cover bg-fixed bg-center">
+          <main className="flex flex-col items-center text-center bg-white text-dark px-8 py-8 md:py-[50px] lg:py-[60px] md:w-[90%] w-[90%] max-w-[800px] gap-14 rounded-lg">
+            <div className="flex flex-col items-center justify-center gap-2">
+              <Image src="login_logo.svg" alt="Login Logo" width={90} height={80} />
+              <h3 className="uppercase text-xl font-semibold mt-[-4px]">
+                Create an Account
+              </h3>
             </div>
-            <div className="relative flex flex-col text-left">
-              <label htmlFor="email" className="font-semibold">
-                Email
-              </label>
-              <input
-                type="email"
-                name="email"
-                id="email"
-                placeholder="example@email.com"
-                value={email}
-                onChange={handleEmailChange}
-                onBlur={validateEmail}
-                className={`${emailBorder} placeholder:text-sm placeholder:font-normal bg-transparent font-semibold outline-none max-sm:w-[95%] max-w-[215px] border-b-2`}
-              />
-              {emailError && emailError !== "empty" && (
-                <span className="text-red-500 text-sm mt-1 max-sm:w-[95%] max-w-[215px]">
-                  {emailError}
-                </span>
-              )}
-            </div>
-            <div className="flex flex-col text-left">
-              <label htmlFor="password" className="font-semibold">
-                Password
-              </label>
-              <input
-                type="password"
-                name="password"
-                id="password"
-                placeholder="abcd@123"
-                value={password}
-                onChange={handlePasswordChange}
-                onBlur={() => {
-                  validatePassword();
-                  if (confirmPassword.length > 0) {
-                    validateConfirmPassword();
-                  }
-                }}
-                className={`${passwordBorder} placeholder:text-sm placeholder:font-normal bg-transparent font-semibold outline-none max-sm:w-[95%] max-w-[215px] border-b-2`}
-              />
-              {passwordError && passwordError !== "empty" && (
-                <span className="text-red-500 text-sm mt-1 max-sm:w-[95%] max-w-[215px]">
-                  {passwordError}
-                </span>
-              )}
-            </div>
-            <div className="flex flex-col text-left">
-              <label htmlFor="confirmpassword" className="font-semibold">
-                Confirm Password
-              </label>
-              <input
-                type="password"
-                name="confirmpassword"
-                id="confirmpassword"
-                placeholder="abcd@123"
-                value={confirmPassword}
-                onChange={handleConfirmPasswordChange}
-                onBlur={validateConfirmPassword}
-                className={`${confirmPasswordBorder} placeholder:text-sm placeholder:font-normal bg-transparent font-semibold outline-none max-sm:w-[95%] max-w-[215px] border-b-2`}
-              />
-              {confirmPasswordError && confirmPasswordError !== "empty" && (
-                <span className="text-red-500 text-sm mt-1 max-sm:w-[95%] max-w-[215px]">
-                  {confirmPasswordError}
-                </span>
-              )}
-            </div>
-            <button
-              type="submit"
-              disabled={!isFormValid}
-              className={`flex gap-1 items-center text-lg font-semibold relative ${
-                isFormValid
-                  ? "after:content-[''] after:bg-dark after:bottom-[2px] after:h-[2px] after:w-0 after:rounded-full after:absolute after:left-0 hover:after:w-full after:ease-out after:transition-all after:duration-700 button-with-image"
-                  : ""
-              }`}
+    
+            <form
+              onSubmit={handleSignup}
+              className="flex flex-col items-start  justify-center grow gap-8"
             >
-              Register
-              <Image
-                src="/arrow_right.svg"
-                alt="login"
-                width={12}
-                height={12}
-                className="hidden-image hidden transition-all duration-1000"
-              />
-            </button>
-          </form>
-          <span className="md:flex-row md:gap-1 items-center flex flex-col text-sm font-semibold">
-            Already have an account?
-            <button onClick={()=>{signIn()}} className="font-bold hoverEffect2">
-              LogIn
-            </button>
-          </span>
-        </main>
-      </section>
-    );
+              <div className="relative flex flex-col text-left">
+                <label htmlFor="name" className="font-semibold">
+                  Full Name
+                </label>
+                <input
+                  type="text"
+                  name="name"
+                  id="name"
+                  placeholder="example@email.com"
+                  value={fullName}
+                  onChange={handleFullNameChange}
+                  onBlur={validateFullName}
+                  className={`${fullNameBorder} placeholder:text-sm placeholder:font-normal bg-transparent font-semibold outline-none max-sm:w-[95%] max-w-[215px] border-b-2`}
+                />
+                {fullNameError && fullNameError !== "empty" && (
+                  <span className="text-red-500 text-sm mt-1 max-sm:w-[95%] max-w-[215px]">
+                    {fullNameError}
+                  </span>
+                )}
+              </div>
+              <div className="relative flex flex-col text-left">
+                <label htmlFor="email" className="font-semibold">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  id="email"
+                  placeholder="example@email.com"
+                  value={email}
+                  onChange={handleEmailChange}
+                  onBlur={validateEmail}
+                  className={`${emailBorder} placeholder:text-sm placeholder:font-normal bg-transparent font-semibold outline-none max-sm:w-[95%] max-w-[215px] border-b-2`}
+                />
+                {emailError && emailError !== "empty" && (
+                  <span className="text-red-500 text-sm mt-1 max-sm:w-[95%] max-w-[215px]">
+                    {emailError}
+                  </span>
+                )}
+              </div>
+              <div className="flex flex-col text-left">
+                <label htmlFor="password" className="font-semibold">
+                  Password
+                </label>
+                <input
+                  type="password"
+                  name="password"
+                  id="password"
+                  placeholder="abcd@123"
+                  value={password}
+                  onChange={handlePasswordChange}
+                  onBlur={() => {
+                    validatePassword();
+                    if (confirmPassword.length > 0) {
+                      validateConfirmPassword();
+                    }
+                  }}
+                  className={`${passwordBorder} placeholder:text-sm placeholder:font-normal bg-transparent font-semibold outline-none max-sm:w-[95%] max-w-[215px] border-b-2`}
+                />
+                {passwordError && passwordError !== "empty" && (
+                  <span className="text-red-500 text-sm mt-1 max-sm:w-[95%] max-w-[215px]">
+                    {passwordError}
+                  </span>
+                )}
+              </div>
+              <div className="flex flex-col text-left">
+                <label htmlFor="confirmpassword" className="font-semibold">
+                  Confirm Password
+                </label>
+                <input
+                  type="password"
+                  name="confirmpassword"
+                  id="confirmpassword"
+                  placeholder="abcd@123"
+                  value={confirmPassword}
+                  onChange={handleConfirmPasswordChange}
+                  onBlur={validateConfirmPassword}
+                  className={`${confirmPasswordBorder} placeholder:text-sm placeholder:font-normal bg-transparent font-semibold outline-none max-sm:w-[95%] max-w-[215px] border-b-2`}
+                />
+                {confirmPasswordError && confirmPasswordError !== "empty" && (
+                  <span className="text-red-500 text-sm mt-1 max-sm:w-[95%] max-w-[215px]">
+                    {confirmPasswordError}
+                  </span>
+                )}
+              </div>
+              <button
+                type="submit"
+                disabled={!isFormValid}
+                className={`flex gap-1 items-center text-lg font-semibold relative ${
+                  isFormValid
+                    ? "after:content-[''] after:bg-dark after:bottom-[2px] after:h-[2px] after:w-0 after:rounded-full after:absolute after:left-0 hover:after:w-full after:ease-out after:transition-all after:duration-700 button-with-image"
+                    : ""
+                }`}
+              >
+                Register
+                <Image
+                  src="/arrow_right.svg"
+                  alt="login"
+                  width={12}
+                  height={12}
+                  className="hidden-image hidden transition-all duration-1000"
+                />
+              </button>
+            </form>
+            <span className="md:flex-row md:gap-1 items-center flex flex-col text-sm font-semibold">
+              Already have an account?
+              <button onClick={()=>{signIn()}} className="font-bold hoverEffect2">
+                LogIn
+              </button>
+            </span>
+          </main>
+        </section>
+      );
+
   }
 
 };

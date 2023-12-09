@@ -2,15 +2,16 @@
 import { mergeLocalAndDBCart } from "@/lib/actions/user.actions";
 import { resendVerificationEmail } from "@/lib/sendGridMail";
 import { testEmail } from "@/lib/utils";
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import toast from "react-hot-toast";
+import { ClipLoader } from "react-spinners";
 
 const Login = () => {
-
+  const { data: session, status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl");
@@ -18,8 +19,8 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
-  const [emailBorder, setEmailBorder] = useState("border-dark");
-  const [passwordBorder, setPasswordBorder] = useState("border-dark");
+  const [emailBorder, setEmailBorder] = useState("border-[#cccccc]");
+  const [passwordBorder, setPasswordBorder] = useState("border-[#cccccc]");
   const isFormValid = !(emailError || passwordError);
   const [loginError, setLoginError] = useState("");
 
@@ -81,14 +82,14 @@ const Login = () => {
 
         if (!res?.error) {
           const localStorageCartString = localStorage.getItem("cart");
-          if(localStorageCartString){
+          if (localStorageCartString) {
             await mergeLocalAndDBCart(localStorageCartString);
             localStorage.removeItem("cart");
           }
           if (callbackUrl && callbackUrl !== "/signup") {
             router.push(callbackUrl);
           } else {
-            router.push("/on-the-menu");
+            router.push("/menu");
           }
         } else {
           if (res?.error === "Email not verified!") {
@@ -104,116 +105,117 @@ const Login = () => {
   };
 
   const handleEmailVerification = async () => {
-    try{
+    try {
       await resendVerificationEmail(email);
-      toast.success('Email sent!');
-    }catch(err:any){
+      toast.success("Email sent!");
+    } catch (err: any) {
       toast.error(err.message);
     }
   };
-  return (
-    <section className="flex flex-col justify-center items-center h-full py-[100px] login-background bg-cover bg-fixed bg-center">
-      <div className="flex flex-col items-center text-center bg-white text-dark px-8 py-8 md:py-[50px] lg:py-[60px] md:w-[90%] w-[90%] max-w-[800px] gap-14 rounded-lg">
-        <div className="flex flex-col items-center justify-center gap-2">
-          <Image src="login_logo.svg" alt="Login Logo" width={90} height={80} />
-          <h3 className="uppercase text-xl font-semibold mt-[-4px]">
-            User LogIn
-          </h3>
-        </div>
-
-        <form
-          onSubmit={handleLogin}
-          className="flex flex-col items-start justify-center grow gap-8"
-        >
-          <div className="relative flex flex-col text-left">
-            <label htmlFor="email" className="font-semibold">
-              Email
-            </label>
-            <input
-              type="email"
-              name="email"
-              id="email"
-              placeholder="example@email.com"
-              value={email}
-              onChange={handleEmailChange}
-              onBlur={validateEmail}
-              className={`${emailBorder} placeholder:text-sm placeholder:font-normal bg-transparent font-semibold outline-none max-sm:w-[95%] max-w-[215px] border-b-2`}
-            />
-            {emailError && (
-              <span className="text-red-500 text-sm mt-1 max-sm:w-[95%] max-w-[215px]">
-                {emailError}
-              </span>
-            )}
+    return (
+      <section className="flex justify-center mt-[60px] mb-[100px]">
+        <div className="flex flex-col items-center justify-start gap-[60px] lg:w-[800px] lg:rounded-md lg:shadow-2xl w-full md:px-[40px] lg:px-[100px] md:pt-[60px] md:pb-[100px]">
+          <div className="flex flex-col items-center gap-3 justify-center">
+          <Image src="login_logo.svg" alt="Login Logo" width={130} height={130} />
+              <h3 className="text-2xl text-center text-dark uppercase font-semibold">
+                Login
+              </h3>
           </div>
-          <div className="flex flex-col text-left">
-            <label htmlFor="password" className="font-semibold">
-              Password
-            </label>
-            <input
-              type="password"
-              name="password"
-              id="password"
-              placeholder="abcd@123"
-              value={password}
-              onChange={handlePasswordChange}
-              onBlur={validatePassword}
-              className={`${passwordBorder} placeholder:text-sm placeholder:font-normal bg-transparent font-semibold outline-none max-sm:w-[95%] max-w-[215px] border-b-2`}
-            />
-            {passwordError && (
-              <span className="text-red-500 text-sm mt-1 max-sm:w-[95%] max-w-[215px]">
-                {passwordError}
-              </span>
-            )}
-          </div>
-
-          <button
-            type="submit"
-            disabled={!isFormValid}
-            className={`flex gap-1 items-center text-lg font-semibold relative ${
-              isFormValid
-                ? "after:content-[''] after:bg-dark after:bottom-[2px] after:h-[2px] after:w-0 after:rounded-full after:absolute after:left-0 hover:after:w-full after:ease-out after:transition-all after:duration-700 button-with-image"
-                : ""
-            }`}
+  
+          <form
+            onSubmit={handleLogin}
+            className="flex flex-col gap-4 text-left px-5 md:px-14 w-full"
           >
-            Login
-            <Image
-              src="/arrow_right.svg"
-              alt="login"
-              width={12}
-              height={12}
-              className="hidden-image hidden transition-all duration-1000"
-            />
-          </button>
-        </form>
-        {loginError === "Email not verified!" ? (
-          <div className="flex flex-col md:gap-1 items-center justify-center">
-            <span className="text-red-500 text-sm font-semibold">
-              Email not Verified!
+            <div className="flex flex-col text-left">
+              <label htmlFor="email" className="font-medium px-2 text-dark">
+                Email
+              </label>
+              <input
+                type="email"
+                name="email"
+                id="email"
+                placeholder="example@email.com"
+                value={email}
+                onChange={handleEmailChange}
+                onBlur={validateEmail}
+                className={`${emailBorder} placeholder:text-sm placeholder:font-normal bg-[#f1f1f1] text-gray outline-none px-5 py-2 w-[95%] max-w-[95%] rounded-xl border`}
+              />
+              {emailError && (
+                <span className="text-red-500 text-sm mt-1 w-[95%] max-w-[95%]">
+                  {emailError}
+                </span>
+              )}
+            </div>
+            <div className="flex flex-col text-left">
+              <label htmlFor="password" className="font-medium px-2 text-dark">
+                Password
+              </label>
+              <input
+                type="password"
+                name="password"
+                id="password"
+                placeholder="abcd@123"
+                value={password}
+                onChange={handlePasswordChange}
+                onBlur={validatePassword}
+                className={`${passwordBorder} placeholder:text-sm placeholder:font-normal bg-[#f1f1f1] text-gray outline-none px-5 py-2 w-[95%] max-w-[95%] rounded-xl border`}
+              />
+              {passwordError && (
+                <span className="text-red-500 text-sm mt-1 w-[95%] max-w-[95%]">
+                  {passwordError}
+                </span>
+              )}
+            </div>
+  
+            <button
+              type="submit"
+              disabled={!isFormValid}
+              className={`ml-[-4px] px-8 py-4 text-sm w-fit shadow-xl text-[#f1f1f1] rounded-3xl font-semibold ${
+                isFormValid
+                  ? "bg-dark"
+                  : "bg-gray"
+              }`}
+            >
+              Login
+              <Image
+                src="/arrow_right.svg"
+                alt="login"
+                width={12}
+                height={12}
+                className="hidden-image hidden transition-all duration-1000"
+              />
+            </button>
+          </form>
+          {loginError === "Email not verified!" ? (
+            <div className="flex flex-col md:gap-1 items-center justify-center">
+              <span className="text-red-500 text-sm font-semibold">
+                Email not Verified!
+              </span>
+              <span className="md:flex-row md:gap-1 items-center flex flex-col text-sm font-medium">
+                Didn't receive a verification link?
+                <div>
+                  <button
+                    onClick={handleEmailVerification}
+                    className="font-semibold hoverEffect2"
+                  >
+                    Click here
+                  </button>{" "}
+                  to resend.
+                </div>
+              </span>
+            </div>
+          ) : (
+            <span className="md:flex-row md:gap-1 items-center flex flex-col text-sm font-semibold">
+              Already have account?
+              <Link href={"/signup"} className="font-bold hoverEffect2">
+                SignUp
+              </Link>
             </span>
-            <span className="md:flex-row md:gap-1 items-center flex flex-col text-sm font-medium">
-              Didn't receive a verification link?
-              <div>
-                <button
-                  onClick={handleEmailVerification}
-                  className="font-semibold hoverEffect2"
-                >
-                  Click here
-                </button>{" "}
-                to resend.
-              </div>
-            </span>
-          </div>
-        ) : (
-          <span className="md:flex-row md:gap-1 items-center flex flex-col text-sm font-semibold">
-            Already have account?
-            <Link href={"/signup"} className="font-bold hoverEffect2">
-              SignUp
-            </Link>
-          </span>
-        )}
-      </div>
-    </section>
-  );
+          )}
+        </div>
+      </section>
+    );
+
 };
 
 export default Login;

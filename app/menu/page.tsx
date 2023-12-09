@@ -1,7 +1,7 @@
 import MenuCard from "@/components/MenuCard";
 import { getMealsByCategory } from "@/lib/actions/meals.actions";
 
-const OnTheMenu = async () => {
+const Menu = async () => {
   const mealsByCategory = await getMealsByCategory();
   return (
     <div>
@@ -30,4 +30,4 @@ const OnTheMenu = async () => {
   );
 };
 
-export default OnTheMenu;
+export default Menu;

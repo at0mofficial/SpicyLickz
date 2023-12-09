@@ -70,6 +70,7 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     session: ({ session, token }) => {
+      // console.log('<-----Session Callback----->',session, token);
       return {
         ...session, user: {
           ...session.user,
@@ -81,6 +82,7 @@ export const authOptions: NextAuthOptions = {
       }
     },
     jwt: ({ token, user }) => {
+      // console.log('<-----JWT Callback----->',user, token);
       const u = user as unknown as any;
       if(user){
         return {

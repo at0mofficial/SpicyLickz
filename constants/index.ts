@@ -35,7 +35,7 @@ export const footerLinks = [
     title: "Navigation",
     links: [
       { name: "Home", url: "/" },
-      { name: "On The Menu", url: "/on-the-menu" },
+      { name: "Menu", url: "/menu" },
     ],
   },
   {

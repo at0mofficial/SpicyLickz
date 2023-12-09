@@ -23,7 +23,7 @@ const Cart = async () => {
           </div>
         </div>
 
-        <div className="flex flex-col lg:mt-0 mt-10 grow gap-5">
+        <div className="flex flex-col lg:mt-0 mt-14 grow gap-5">
           <div className="flex flex-col gap-5">
             <div className="flex gap-6">
               <div className="bg-[#f1f1f1] w-fit h-fit max-h-fit shrink-0 max-w-fit p-5 rounded-lg">
@@ -47,7 +47,7 @@ const Cart = async () => {
                 </p>
               </div>
             </div>
-            <button className="ml-[-6px] px-8 py-4 text-sm w-fit bg-dark shadow-lg text-[#f1f1f1] rounded-3xl font-semibold">
+            <button className="ml-[-6px] px-8 py-4 text-sm w-fit bg-dark shadow-xl text-[#f1f1f1] rounded-3xl font-semibold">
               Change Address
             </button>
           </div>
@@ -71,7 +71,7 @@ const Cart = async () => {
               Total<span className="">$209.00</span>
             </p>
           </div>
-          <button className="ml-[-6px] px-8 py-4 text-sm w-fit bg-dark shadow-lg text-[#f1f1f1] rounded-3xl font-semibold">
+          <button className="ml-[-6px] px-8 py-4 text-sm w-fit bg-dark shadow-xl text-[#f1f1f1] rounded-3xl font-semibold">
               Place Order
             </button>
         </div>

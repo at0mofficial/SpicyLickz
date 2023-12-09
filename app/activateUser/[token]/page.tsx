@@ -103,17 +103,11 @@ export default function ActivateUser({
         </div>
       </div>
     );
-  }
-  else {
-    return(
+  } else {
+    return (
       <div className="flex items-center justify-center p-[100px]">
-
-<ClipLoader
-  color="#ff2f00"
-  size={50}
-  speedMultiplier={2}
-/>
+        <ClipLoader color="#ff2f00" size={50} speedMultiplier={2} />
       </div>
-    )
+    );
   }
 }

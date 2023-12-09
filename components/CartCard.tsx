@@ -33,9 +33,9 @@ const CartCard = ({ title, description, price, imageUrl }: cartCardProps) => {
             {price}
           </span>
           <div className="flex items-center justify-center px-4 gap-2">
-          <button className="text-center h-8 w-8 min-w-[32px] bg-[#edebeb] rounded-md">+</button>
-            <span className="min-w-[22px] text-center">5</span>
             <button className="text-center h-8 w-8 min-w-[32px] bg-[#edebeb] rounded-md">-</button>
+            <span className="min-w-[22px] text-center">5</span>
+          <button className="text-center h-8 w-8 min-w-[32px] bg-[#edebeb] rounded-md">+</button>
             <Image src={`/delete_Icon.svg`} alt="delete" width={16} height={16} className="ml-4" />
           </div>
         </div>
