@@ -19,6 +19,8 @@ const UserProfile = () => {
   const userName = session?.user?.name || "";
   const userProvince = "Ontario";
 
+  const [loading, setLoading] = useState(true);
+
   const [streetAddressErrors, setStreetAddressErrors] = useState("empty");
   const [aptNoErrors, setAptNoErrors] = useState("empty");
   const [cityErrors, setCityErrors] = useState("empty");
@@ -52,20 +54,16 @@ const UserProfile = () => {
         setInitialAptNo(address.aptNo);
         setInitialCity(address.city);
         setInitialZipCode(address.zipCode);
+        setLoading(false);
       } catch (error) {
         console.error("Error fetching user address:", error);
+        setLoading(false);
       }
     };
 
     fetchAddress();
   }, []);
 
-  const isFormValid = !(
-    streetAddressErrors ||
-    aptNoErrors ||
-    cityErrors ||
-    zipCodeErrors
-  );
   const isAddressChanged = !(
     streetAddress === initialStreetAddress &&
     aptNo === initialAptNo &&
@@ -186,31 +184,56 @@ const UserProfile = () => {
     handleAptNoValidations();
     handleCityValidations();
     handleZipCodeValidations();
-    
-    if (isFormValid) {
+  };
+
+  useEffect(() => {
+    const isFormValid = !(
+      streetAddressErrors ||
+      aptNoErrors ||
+      cityErrors ||
+      zipCodeErrors
+    );
+
+    // If the form is valid and there are changes, submit the form
+    if (isFormValid && isAddressChanged) {
       try {
-        const finalAdress = {
+        const finalAddress = {
           streetAddress: streetAddress,
           aptNo: aptNo,
           city: city,
           zipCode: zipCode,
         };
-        await updateUserAddress(finalAdress);
-        toast.success("Saved!");
-        console.log("Changes saved successfully!");
+        updateUserAddress(finalAddress).then(() => {
+          toast.success("Saved!");
+          setInitialStreetAddress(streetAddress);
+          setInitialAptNo(aptNo);
+          setInitialCity(city);
+          setInitialZipCode(zipCode);
+        });
       } catch (err: any) {
         toast.error(err.message);
       }
     }
-  };
+  }, [
+    streetAddress,
+    aptNo,
+    city,
+    zipCode,
+    streetAddressErrors,
+    aptNoErrors,
+    cityErrors,
+    zipCodeErrors,
+    isAddressChanged,
+  ]);
 
-  if (status === "loading") {
+  if (status === "loading" || loading) {
     return (
       <div className="flex items-center justify-center p-[100px]">
         <ClipLoader color="#ff2f00" size={50} speedMultiplier={2} />
       </div>
     );
-  } else {
+  } 
+  else {
     return (
       <main className="flex justify-center mt-[60px] mb-[100px]">
         <div className="flex flex-col gap-[60px] lg:w-[800px] lg:rounded-md lg:shadow-2xl w-full md:px-[40px] lg:px-[100px] md:pt-[60px] md:pb-[100px]">
@@ -291,8 +314,7 @@ const UserProfile = () => {
                   selected={city}
                   onChange={(value) => {
                     setCity(value);
-                    setCityBorder("border-none");
-                    setCityErrors("");
+                    handleCityValidations();
                   }}
                   cityBorder={cityBorder}
                 />
