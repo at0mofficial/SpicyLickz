@@ -1,5 +1,6 @@
 import bcrypt from "bcryptjs";
 import * as crypto from "crypto";
+import { revalidatePath } from "next/cache";
 
 export async function hashPassword(password: string): Promise<string> {
   const saltRounds = 10;
@@ -60,6 +61,19 @@ export function testFullName(fullName: string) {
   return !invalidCharacters.test(fullName);
 }
 
+export async function fetchLocalStorageCart() {
+    try {
+      const localStorageCartString = localStorage.getItem("cart");
+      const localStorageCart = localStorageCartString
+      ? JSON.parse(localStorageCartString)
+      : [];
+    return localStorageCart;
+    } catch (err: any) {
+      console.error("Error fetching local storage cart:", err);
+      throw new Error("Error getting local storage cart!");
+    };
+}
+
 export function addMealToLocalStorage(mealId: string): void {
   try {
     const localStorageCartString = localStorage.getItem("cart");
@@ -81,11 +95,10 @@ export function addMealToLocalStorage(mealId: string): void {
     console.log("Meal added to the local storage cart successfully!");
   } catch (err) {
     console.error(err);
-    throw new Error("Add to cart Failed!");
+    throw new Error("Error!");
   }
 }
-
-export function increaseLocalMealQty(mealId: string): void {
+export function deleteItemFromLocalStorage(mealId: string, path: string): void {
   try {
     const localStorageCartString = localStorage.getItem("cart");
     let localStorageCart = localStorageCartString
@@ -93,28 +106,51 @@ export function increaseLocalMealQty(mealId: string): void {
       : [];
 
     const existingCartItemIndex = localStorageCart.findIndex(
-      (item:{meal: string; quantity: number}) => item.meal === mealId
+      (item: { meal: string; quantity: number }) => item.meal === mealId
+    );
+
+    if (existingCartItemIndex !== -1) {
+      localStorageCart.splice(existingCartItemIndex, 1); // Remove the item from the cart array
+      localStorage.setItem("cart", JSON.stringify(localStorageCart));
+      console.log("Item removed from the local storage cart successfully!");
+      revalidatePath(path);
+    } else {
+      console.error("Item not found in the local storage cart.");
+      throw new Error("Item not found!");
+    }
+  } catch (err) {
+    console.error(err);
+    throw new Error("Error!");
+  }
+}
+
+export function increaseLocalMealQty(mealId: string, path: string): void {
+  try {
+    const localStorageCartString = localStorage.getItem("cart");
+    let localStorageCart = localStorageCartString
+      ? JSON.parse(localStorageCartString)
+      : [];
+
+    const existingCartItemIndex = localStorageCart.findIndex(
+      (item: { meal: string; quantity: number }) => item.meal === mealId
     );
 
     if (existingCartItemIndex !== -1) {
       localStorageCart[existingCartItemIndex].quantity += 1;
       localStorage.setItem("cart", JSON.stringify(localStorageCart));
-      console.log(
-        "Increased meal Qty!"
-      );
+      console.log("Increased meal Qty!");
+      revalidatePath(path);
     } else {
       console.log("Meal not found in the local storage cart.");
-      throw new Error('Meal not found!');
+      throw new Error("Meal not found!");
     }
   } catch (err) {
     console.error(err);
-    throw new Error(
-      "Failed!"
-    );
+    throw new Error("Error!");
   }
 }
 
-export function decreaseLocalMealQty(mealId: string): void {
+export function decreaseLocalMealQty(mealId: string, path: string): void {
   try {
     const localStorageCartString = localStorage.getItem("cart");
     let localStorageCart = localStorageCartString
@@ -122,7 +158,7 @@ export function decreaseLocalMealQty(mealId: string): void {
       : [];
 
     const existingCartItemIndex = localStorageCart.findIndex(
-      (item:{meal:string; quantity: number}) => item.meal === mealId
+      (item: { meal: string; quantity: number }) => item.meal === mealId
     );
 
     if (existingCartItemIndex !== -1) {
@@ -131,25 +167,20 @@ export function decreaseLocalMealQty(mealId: string): void {
       if (currentQuantity > 1) {
         localStorageCart[existingCartItemIndex].quantity -= 1;
         localStorage.setItem("cart", JSON.stringify(localStorageCart));
-        console.log(
-          "Decreased meal Qty!"
-        );
+        console.log("Decreased meal Qty!");
+        revalidatePath(path);
       } else {
         localStorageCart.splice(existingCartItemIndex, 1);
         localStorage.setItem("cart", JSON.stringify(localStorageCart));
-        console.log(
-          "Item Removed!"
-        );
+        console.log("Item Removed!");
+        revalidatePath(path);
       }
     } else {
       console.error("Meal not found in the local storage cart.");
-        throw new Error("Meal not found!");
+      throw new Error("Meal not found!");
     }
   } catch (err) {
     console.error(err);
-    throw new Error(
-      "Failed!"
-    );
+    throw new Error("Failed!");
   }
 }
-

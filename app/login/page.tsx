@@ -2,16 +2,14 @@
 import { mergeLocalAndDBCart } from "@/lib/actions/user.actions";
 import { resendVerificationEmail } from "@/lib/sendGridMail";
 import { testEmail } from "@/lib/utils";
-import { signIn, useSession } from "next-auth/react";
+import { signIn } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { ClipLoader } from "react-spinners";
 
 const Login = () => {
-  const { data: session, status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl");
@@ -19,8 +17,8 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
-  const [emailBorder, setEmailBorder] = useState("border-[#cccccc]");
-  const [passwordBorder, setPasswordBorder] = useState("border-[#cccccc]");
+  const [emailBorder, setEmailBorder] = useState("border-none");
+  const [passwordBorder, setPasswordBorder] = useState("border-none");
   const isFormValid = !(emailError || passwordError);
   const [loginError, setLoginError] = useState("");
 
@@ -81,11 +79,6 @@ const Login = () => {
         });
 
         if (!res?.error) {
-          const localStorageCartString = localStorage.getItem("cart");
-          if (localStorageCartString) {
-            await mergeLocalAndDBCart(localStorageCartString);
-            localStorage.removeItem("cart");
-          }
           if (callbackUrl && callbackUrl !== "/signup") {
             router.push(callbackUrl);
           } else {
@@ -113,10 +106,10 @@ const Login = () => {
     }
   };
     return (
-      <section className="flex justify-center mt-[60px] mb-[100px]">
-        <div className="flex flex-col items-center justify-start gap-[60px] lg:w-[800px] lg:rounded-md lg:shadow-2xl w-full md:px-[40px] lg:px-[100px] md:pt-[60px] md:pb-[100px]">
+      <section className="flex justify-center pt-[60px] pb-[100px]">
+        <div className="flex flex-col items-center justify-start gap-[60px] lg:w-[760px] w-full md:px-[40px] lg:px-[100px]">
           <div className="flex flex-col items-center gap-3 justify-center">
-          <Image src="login_logo.svg" alt="Login Logo" width={130} height={130} />
+          <Image src="login_logo.svg" alt="Login Logo" width={110} height={110} />
               <h3 className="text-2xl text-center text-dark uppercase font-semibold">
                 Login
               </h3>
@@ -124,9 +117,9 @@ const Login = () => {
   
           <form
             onSubmit={handleLogin}
-            className="flex flex-col gap-4 text-left px-5 md:px-14 w-full"
+            className="flex flex-col gap-4 text-left px-12 md:px-28 w-full"
           >
-            <div className="flex flex-col text-left">
+            <div className="flex flex-col gap-1 text-left">
               <label htmlFor="email" className="font-medium px-2 text-dark">
                 Email
               </label>
@@ -146,7 +139,7 @@ const Login = () => {
                 </span>
               )}
             </div>
-            <div className="flex flex-col text-left">
+            <div className="flex flex-col gap-1 text-left">
               <label htmlFor="password" className="font-medium px-2 text-dark">
                 Password
               </label>
@@ -170,20 +163,13 @@ const Login = () => {
             <button
               type="submit"
               disabled={!isFormValid}
-              className={`ml-[-4px] px-8 py-4 text-sm w-fit shadow-xl text-[#f1f1f1] rounded-3xl font-semibold ${
+              className={`px-8 py-4 mt-4 text-sm w-fit shadow-xl text-[#f1f1f1] rounded-3xl font-semibold ${
                 isFormValid
                   ? "bg-dark"
                   : "bg-gray"
               }`}
             >
               Login
-              <Image
-                src="/arrow_right.svg"
-                alt="login"
-                width={12}
-                height={12}
-                className="hidden-image hidden transition-all duration-1000"
-              />
             </button>
           </form>
           {loginError === "Email not verified!" ? (

@@ -19,11 +19,11 @@ const Signup = () => {
   const [passwordError, setPasswordError] = useState("empty");
   const [confirmPasswordError, setConfirmPasswordError] = useState("empty");
   
-  const [fullNameBorder, setFullNameBorder] = useState("border-dark");
-  const [emailBorder, setEmailBorder] = useState("border-dark");
-  const [passwordBorder, setPasswordBorder] = useState("border-dark");
+  const [fullNameBorder, setFullNameBorder] = useState("border-none");
+  const [emailBorder, setEmailBorder] = useState("border-none");
+  const [passwordBorder, setPasswordBorder] = useState("border-none");
   const [confirmPasswordBorder, setConfirmPasswordBorder] =
-  useState("border-dark");
+  useState("border-none");
   
   const [isRegisterd, setIsRegistered] = useState(false);
 
@@ -41,7 +41,7 @@ const Signup = () => {
       setFullNameBorder("border-red-500");
     } else if (!testFullName(e.target.value)) {
       setFullNameBorder("border-red-500");
-    } else if (e.target.value.length < 3 || e.target.value.length > 25) {
+    } else if (e.target.value.trim().length < 3 || e.target.value.trim().length > 25) {
       setFullNameBorder("border-red-500");
     } else {
       setFullNameBorder("border-green-500");
@@ -87,10 +87,10 @@ const Signup = () => {
     } else if (!testFullName(fullName)) {
       setFullNameError("Special characters not allowed!");
       setFullNameBorder("border-red-500");
-    } else if (fullName.length < 3) {
+    } else if (fullName.trim().length < 3) {
       setFullNameError("Name should be at least 3 characters!");
       setFullNameBorder("border-red-500");
-    } else if (fullName.length > 25) {
+    } else if (fullName.trim().length > 25) {
       setFullNameError("Max 25 characters allowed!");
       setFullNameBorder("border-red-500");
     } else {
@@ -181,21 +181,21 @@ const Signup = () => {
   }
   else{
       return (
-        <section className="flex flex-col justify-center items-center h-full py-[100px] login-background bg-cover bg-fixed bg-center">
-          <main className="flex flex-col items-center text-center bg-white text-dark px-8 py-8 md:py-[50px] lg:py-[60px] md:w-[90%] w-[90%] max-w-[800px] gap-14 rounded-lg">
-            <div className="flex flex-col items-center justify-center gap-2">
-              <Image src="login_logo.svg" alt="Login Logo" width={90} height={80} />
-              <h3 className="uppercase text-xl font-semibold mt-[-4px]">
+        <section className="flex justify-center pt-[60px] pb-[100px]">
+          <main className="flex flex-col items-center justify-start gap-[60px] lg:w-[760px] w-full md:px-[40px] lg:px-[100px]">
+            <div className="flex flex-col items-center gap-3 justify-center">
+            <Image src="login_logo.svg" alt="Login Logo" width={110} height={110} />
+            <h3 className="text-2xl text-center text-dark uppercase font-semibold">
                 Create an Account
               </h3>
             </div>
     
             <form
               onSubmit={handleSignup}
-              className="flex flex-col items-start  justify-center grow gap-8"
+              className="flex flex-col gap-4 text-left px-12 md:px-28 w-full"
             >
-              <div className="relative flex flex-col text-left">
-                <label htmlFor="name" className="font-semibold">
+              <div className="flex flex-col gap-1 text-left">
+                <label htmlFor="name" className="font-medium px-2 text-dark">
                   Full Name
                 </label>
                 <input
@@ -206,16 +206,16 @@ const Signup = () => {
                   value={fullName}
                   onChange={handleFullNameChange}
                   onBlur={validateFullName}
-                  className={`${fullNameBorder} placeholder:text-sm placeholder:font-normal bg-transparent font-semibold outline-none max-sm:w-[95%] max-w-[215px] border-b-2`}
+                  className={`${fullNameBorder} placeholder:text-sm placeholder:font-normal bg-[#f1f1f1] text-gray outline-none px-5 py-2 w-[95%] max-w-[95%] rounded-xl border`}
                 />
                 {fullNameError && fullNameError !== "empty" && (
-                  <span className="text-red-500 text-sm mt-1 max-sm:w-[95%] max-w-[215px]">
+                  <span className="text-red-500 text-sm mt-1 w-[95%] max-w-[95%]">
                     {fullNameError}
                   </span>
                 )}
               </div>
-              <div className="relative flex flex-col text-left">
-                <label htmlFor="email" className="font-semibold">
+              <div className="flex flex-col gap-1 text-left">
+                <label htmlFor="email" className="font-medium px-2 text-dark">
                   Email
                 </label>
                 <input
@@ -226,16 +226,16 @@ const Signup = () => {
                   value={email}
                   onChange={handleEmailChange}
                   onBlur={validateEmail}
-                  className={`${emailBorder} placeholder:text-sm placeholder:font-normal bg-transparent font-semibold outline-none max-sm:w-[95%] max-w-[215px] border-b-2`}
+                  className={`${emailBorder} placeholder:text-sm placeholder:font-normal bg-[#f1f1f1] text-gray outline-none px-5 py-2 w-[95%] max-w-[95%] rounded-xl border`}
                 />
                 {emailError && emailError !== "empty" && (
-                  <span className="text-red-500 text-sm mt-1 max-sm:w-[95%] max-w-[215px]">
+                  <span className="text-red-500 text-sm mt-1 w-[95%] max-w-[95%]">
                     {emailError}
                   </span>
                 )}
               </div>
-              <div className="flex flex-col text-left">
-                <label htmlFor="password" className="font-semibold">
+              <div className="flex flex-col gap-1 text-left">
+                <label htmlFor="password" className="font-medium px-2 text-dark">
                   Password
                 </label>
                 <input
@@ -251,16 +251,16 @@ const Signup = () => {
                       validateConfirmPassword();
                     }
                   }}
-                  className={`${passwordBorder} placeholder:text-sm placeholder:font-normal bg-transparent font-semibold outline-none max-sm:w-[95%] max-w-[215px] border-b-2`}
+                  className={`${passwordBorder} placeholder:text-sm placeholder:font-normal bg-[#f1f1f1] text-gray outline-none px-5 py-2 w-[95%] max-w-[95%] rounded-xl border`}
                 />
                 {passwordError && passwordError !== "empty" && (
-                  <span className="text-red-500 text-sm mt-1 max-sm:w-[95%] max-w-[215px]">
+                  <span className="text-red-500 text-sm mt-1 w-[95%] max-w-[95%]">
                     {passwordError}
                   </span>
                 )}
               </div>
-              <div className="flex flex-col text-left">
-                <label htmlFor="confirmpassword" className="font-semibold">
+              <div className="flex flex-col gap-1 text-left">
+                <label htmlFor="confirmpassword" className="font-medium px-2 text-dark">
                   Confirm Password
                 </label>
                 <input
@@ -271,10 +271,10 @@ const Signup = () => {
                   value={confirmPassword}
                   onChange={handleConfirmPasswordChange}
                   onBlur={validateConfirmPassword}
-                  className={`${confirmPasswordBorder} placeholder:text-sm placeholder:font-normal bg-transparent font-semibold outline-none max-sm:w-[95%] max-w-[215px] border-b-2`}
+                  className={`${confirmPasswordBorder} placeholder:text-sm placeholder:font-normal bg-[#f1f1f1] text-gray outline-none px-5 py-2 w-[95%] max-w-[95%] rounded-xl border`}
                 />
                 {confirmPasswordError && confirmPasswordError !== "empty" && (
-                  <span className="text-red-500 text-sm mt-1 max-sm:w-[95%] max-w-[215px]">
+                  <span className="text-red-500 text-sm mt-1 w-[95%] max-w-[95%]">
                     {confirmPasswordError}
                   </span>
                 )}
@@ -282,20 +282,13 @@ const Signup = () => {
               <button
                 type="submit"
                 disabled={!isFormValid}
-                className={`flex gap-1 items-center text-lg font-semibold relative ${
+                className={`px-8 mt-4 py-4 text-sm w-fit shadow-xl text-[#f1f1f1] rounded-3xl font-semibold ${
                   isFormValid
-                    ? "after:content-[''] after:bg-dark after:bottom-[2px] after:h-[2px] after:w-0 after:rounded-full after:absolute after:left-0 hover:after:w-full after:ease-out after:transition-all after:duration-700 button-with-image"
-                    : ""
+                    ? "bg-dark"
+                    : "bg-gray"
                 }`}
               >
                 Register
-                <Image
-                  src="/arrow_right.svg"
-                  alt="login"
-                  width={12}
-                  height={12}
-                  className="hidden-image hidden transition-all duration-1000"
-                />
               </button>
             </form>
             <span className="md:flex-row md:gap-1 items-center flex flex-col text-sm font-semibold">

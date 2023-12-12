@@ -49,13 +49,13 @@ export const authOptions: NextAuthOptions = {
           if (!isPasswordValid) {
             throw new Error("Invalid email or password!");
           }
+
+          //merrge carts
           const userInfo = {
             id: user._id,
             name: user.name,
             email: user.email,
             imageUrl: user.imageUrl,
-            address: user.address,
-            cart: user.cart,
           };
           return userInfo;
         } catch (err: any) {
@@ -76,8 +76,6 @@ export const authOptions: NextAuthOptions = {
           ...session.user,
           id: token.id,
           imageUrl: token.imageUrl,
-          address: token.address,
-          cart: token.cart,
         }
       }
     },
@@ -89,8 +87,6 @@ export const authOptions: NextAuthOptions = {
           ...token,
           id: u.id,
           imageUrl: u.imageUrl,
-          address: u.address,
-          cart: u.cart,
         };
         
       }

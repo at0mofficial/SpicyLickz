@@ -91,10 +91,10 @@ export default function ActivateUser({
           <h2 className="p-4 text-3xl">
             There was an error processing your request.
           </h2>
-          <p className="mb-1 text-lg text-gray-600">
+          <p className="mb-1 text-lg text-gray">
             Invalid Token or user is already varified!
           </p>
-          <p className="mb-6 text-lg text-gray-600">
+          <p className="mb-6 text-lg text-gray">
             Try{" "}
             <Link href="/login" className="text-primary underline">
               logging in.

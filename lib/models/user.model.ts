@@ -27,11 +27,11 @@ const userSchema = new mongoose.Schema({
       type: String,
       default: "",
     },
-    zipcode: {
+    zipCode: {
       type: String,
       default: "",
     },
-    AptNo:{
+    aptNo:{
       type: String,
       default: "",
     }

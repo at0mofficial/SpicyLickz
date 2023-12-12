@@ -1,6 +1,10 @@
-'use client'
+"use client";
+import { addMealToDBCart } from "@/lib/actions/user.actions";
+import { addMealToLocalStorage } from "@/lib/utils";
+import { useSession } from "next-auth/react";
 import Image from "next/image";
 import React from "react";
+import toast from "react-hot-toast";
 
 interface mealCardProps {
   id: string;
@@ -9,21 +13,34 @@ interface mealCardProps {
   price: string;
   imageUrl: string;
 }
-const MenuCard = ({
-  title,
-  description,
-  price,
-  imageUrl,
-}: mealCardProps) => {
-
+const MenuCard = ({ title, description, price, imageUrl, id }: mealCardProps) => {
+  const { data: session, status } = useSession();
   const handleAddToCart = () => {
-
-  }
+    if (status !== "loading") {
+      if(status === 'authenticated' && session.user) {
+        try{
+          addMealToDBCart(id, '/cart');
+        }catch(err:any){
+          toast.error(err.message);
+        }
+      }
+      else{
+        try{
+          addMealToLocalStorage(id, '/cart');
+        }catch(err:any){
+          toast.error(err.message);
+        }
+      }
+    }
+  };
 
   return (
     <div className="flex bg-white flex-col w-full rounded-lg shadow-xl">
       <div className="relative aspect-[16/9] max-sm:aspect-[4/3] w-full">
-        <button onClick={handleAddToCart} className="absolute z-10 right-3 top-3 px-5 py-2.5 bg-dark hover:bg-[#171b1f] hidden xs:block text-xs font-medium text-white rounded-[4px]">
+        <button
+          onClick={handleAddToCart}
+          className="absolute z-10 right-3 top-3 px-5 py-2.5 bg-dark hover:bg-[#171b1f] hidden xs:block text-xs font-medium text-white rounded-[4px]"
+        >
           Add to Cart
         </button>
         <Image
@@ -46,7 +63,10 @@ const MenuCard = ({
             {price}
           </span>
         </div>
-        <button onClick={handleAddToCart} className="px-5 py-2.5 xs:hidden bg-dark hover:bg-[#171b1f] text-base font-semibold text-white rounded-[4px]">
+        <button
+          onClick={handleAddToCart}
+          className="px-5 py-2.5 xs:hidden bg-dark hover:bg-[#171b1f] text-base font-semibold text-white rounded-[4px]"
+        >
           Add to Cart
         </button>
       </div>

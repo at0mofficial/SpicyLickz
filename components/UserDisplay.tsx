@@ -2,10 +2,8 @@ import { Menu, Transition } from "@headlessui/react";
 import { signOut } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 
 export default function UserDisplay({ userImage }: { userImage: string }) {
-  const router = useRouter();
   return (
     <div className="flex relative z-[100] items-center md:gap-8 gap-4 mr-2 md:mr-6">
       <Link href={`/cart`} className="hidden md:block">

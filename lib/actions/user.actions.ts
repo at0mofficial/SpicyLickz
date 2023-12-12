@@ -6,6 +6,27 @@ import { connectToDB } from "../mongoose";
 import { sendVerificationEmail } from "../sendGridMail";
 import { generateVerificationCode, hashPassword } from "../utils";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import Meal from "../models/meal.model";
+import { revalidatePath } from "next/cache";
+
+interface Meal {
+  _id: string;
+  title: string;
+  description: string;
+  price: number;
+  imageUrl: string;
+}
+
+interface CartItem {
+  meal: Meal;
+  quantity: number;
+}
+interface UserAddress {
+  streetAddress: string;
+  aptNo: string;
+  city: string;
+  zipCode: string;
+}
 
 export async function registerUser({
   email,
@@ -74,7 +95,12 @@ export async function activateUser(token: string): Promise<void> {
       }
       user.isVerified = true;
       user.verification.code = undefined;
-      await user.save();
+      try {
+        await user.save();
+      } catch (err: any) {
+        reject(new Error(err));
+        return;
+      }
       resolve();
     } catch (err: any) {
       reject(err);
@@ -123,12 +149,62 @@ export async function resendVerificationLink(token: string): Promise<void> {
   });
 }
 
-export async function addMealToDBCart(
-  userId: string,
-  mealId: string
-): Promise<void> {
+export async function fetchUserAddress(): Promise<UserAddress> {
   return new Promise(async (resolve, reject) => {
     try {
+      const session = await getServerSession(authOptions);
+      const userId = session?.user.id;
+      await connectToDB();
+      const user = await User.findById(userId);
+
+      if (!user) {
+        console.error("Error fetching user cart: User not found!");
+        reject(new Error("Error getting user Cart!"));
+        return;
+      }
+      const streetAddress = user.address.streetAddress;
+      const aptNo = user.address.aptNo;
+      const city = user.address.city;
+      const zipCode = user.address.zipCode;
+
+      resolve({streetAddress, city, zipCode, aptNo});
+    } catch (err: any) {
+      console.error("Error fetching user cart:", err);
+      reject(err.message);
+    }
+  });
+}
+export async function fetchUserCart(): Promise<CartItem[]> {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const session = await getServerSession(authOptions);
+      const userId = session?.user.id;
+      await connectToDB();
+      const user = await User.findById(userId).populate({
+        path: "cart.meal",
+        model: Meal,
+        select: ["_id", "title", "description", "price", "imageUrl"],
+      });
+
+      if (!user) {
+        console.error("Error fetching user cart: User not found!");
+        reject(new Error("Error getting user Cart!"));
+        return;
+      }
+
+      resolve(user.cart);
+    } catch (err: any) {
+      console.error("Error fetching user cart:", err);
+      reject(err.message);
+    }
+  });
+}
+
+export async function addMealToDBCart(mealId: string): Promise<void> {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const session = await getServerSession(authOptions);
+      const userId = session?.user.id;
       await connectToDB();
       const user = await User.findById(userId);
 
@@ -149,22 +225,30 @@ export async function addMealToDBCart(
         user.cart.push({ meal: mealId, quantity: 1 });
       }
 
-      await user.save();
+      try {
+        await user.save();
+      } catch (err: any) {
+        reject(new Error(err));
+        return;
+      }
       console.log("Meal added to the database cart successfully!");
+      revalidatePath("/cart");
       resolve();
     } catch (err: any) {
       console.error(err);
-      reject(new Error("Add to cart Failed!"));
+      reject(new Error("Error!"));
     }
   });
 }
 
 export async function increaseDBMealQty(
-  userId: string,
-  mealId: string
+  mealId: string,
+  path: string
 ): Promise<void> {
   return new Promise(async (resolve, reject) => {
     try {
+      const session = await getServerSession(authOptions);
+      const userId = session?.user.id;
       await connectToDB();
       const user = await User.findById(userId);
 
@@ -181,8 +265,14 @@ export async function increaseDBMealQty(
 
       if (existingCartItemIndex !== -1) {
         user.cart[existingCartItemIndex].quantity += 1;
-        await user.save();
+        try {
+          await user.save();
+        } catch (err: any) {
+          reject(new Error(err));
+          return;
+        }
         console.log("Increased meal Qty!");
+        revalidatePath(path);
         resolve();
         return;
       } else {
@@ -191,16 +281,18 @@ export async function increaseDBMealQty(
       }
     } catch (err: any) {
       console.error(err);
-      throw new Error("Failed!");
+      throw new Error(err.message);
     }
   });
 }
 export async function decreaseDBMealQty(
-  userId: string,
-  mealId: string
+  mealId: string,
+  path: string
 ): Promise<void> {
   return new Promise(async (resolve, reject) => {
     try {
+      const session = await getServerSession(authOptions);
+      const userId = session?.user.id;
       await connectToDB();
       const user = await User.findById(userId);
 
@@ -219,14 +311,26 @@ export async function decreaseDBMealQty(
         const currentQuantity = user.cart[existingCartItemIndex].quantity;
         if (currentQuantity > 1) {
           user.cart[existingCartItemIndex].quantity -= 1;
-          await user.save();
+          try {
+            await user.save();
+          } catch (err: any) {
+            reject(new Error(err));
+            return;
+          }
           console.log("Decreased meal Qty!");
+          revalidatePath(path);
           resolve();
           return;
         } else {
           user.cart.splice(existingCartItemIndex, 1);
-          await user.save();
+          try {
+            await user.save();
+          } catch (err: any) {
+            reject(new Error(err));
+            return;
+          }
           console.log("Item Removed!");
+          revalidatePath(path);
           resolve();
           return;
         }
@@ -236,12 +340,58 @@ export async function decreaseDBMealQty(
       }
     } catch (err: any) {
       console.error(err);
-      throw new Error("Failed!");
+      throw new Error(err.message);
     }
   });
 }
 
-export async function mergeLocalAndDBCart(localStorageCartString:string): Promise<void> {
+export async function deleteItemFromDBCart(
+  mealId: string,
+  path: string
+): Promise<void> {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const session = await getServerSession(authOptions);
+      const userId = session?.user.id;
+      await connectToDB();
+      const user = await User.findById(userId);
+
+      if (!user) {
+        console.error("Error deleting item from cart: User not found!");
+        reject(new Error("Error!"));
+        return;
+      }
+
+      const existingCartItemIndex = user.cart.findIndex(
+        (item: { meal: string; quantity: number }) =>
+          item.meal.toString() === mealId
+      );
+
+      if (existingCartItemIndex !== -1) {
+        user.cart.splice(existingCartItemIndex, 1); // Remove the item from the cart array
+        try {
+          await user.save();
+        } catch (err: any) {
+          reject(new Error(err));
+          return;
+        }
+        console.log("Item removed from the database cart successfully!");
+        revalidatePath(path);
+        resolve();
+      } else {
+        console.error("Item not found in the database cart.");
+        reject(new Error("Item not found!"));
+      }
+    } catch (err: any) {
+      console.error(err);
+      reject(new Error("Error!"));
+    }
+  });
+}
+
+export async function mergeLocalAndDBCart(
+  localStorageCartString: string
+): Promise<void> {
   const session = await getServerSession(authOptions);
   console.log(session);
   if (!session || !session.user) return;
@@ -271,7 +421,12 @@ export async function mergeLocalAndDBCart(localStorageCartString:string): Promis
           });
         }
       });
-      await user.save();
+      try {
+        await user.save();
+      } catch (err: any) {
+        reject(new Error(err));
+        return;
+      }
       console.log("Carts merged successfully!");
       resolve();
     } catch (err: any) {
@@ -279,6 +434,44 @@ export async function mergeLocalAndDBCart(localStorageCartString:string): Promis
       console.error(
         "Merge carts encountered an error, but the user login will proceed."
       );
+    }
+  });
+}
+
+export async function updateUserAddress(newAddress: UserAddress): Promise<void> {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const session = await getServerSession(authOptions);
+      const userId = session?.user.id;
+      await connectToDB();
+
+      const user = await User.findById(userId);
+      if (!user) {
+        console.error("Error updating user address: User not found!");
+        reject(new Error("Error updating user address!"));
+        return;
+      }
+
+      user.address = {
+        streetAddress: newAddress.streetAddress,
+        aptNo: newAddress.aptNo,
+        city: newAddress.city,
+        zipCode: newAddress.zipCode,
+      };
+
+      try {
+        await user.save();
+      } catch (err: any) {
+        reject(new Error(err));
+        return;
+      }
+
+      console.log("User address updated successfully!");
+      revalidatePath('/userProfile');
+      resolve();
+    } catch (err: any) {
+      console.error("Error updating user address:", err);
+      reject('Error updating user address!');
     }
   });
 }

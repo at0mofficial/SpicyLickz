@@ -8,7 +8,18 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
-    domains: ['yt3.ggpht.com','lh3.googleusercontent.com'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'utfs.io',
+        pathname: '**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'lh3.googleusercontent.com',
+        pathname: '**',
+      },
+    ],
   },
 };
 
