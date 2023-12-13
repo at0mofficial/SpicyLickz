@@ -39,8 +39,12 @@ const UserProfile = () => {
   const [cityError, setCityError] = useState("");
   const [zipCodeError, setZipCodeError] = useState("");
 
-  const [isFormValid, setIsFormValid] = useState(false);
-  const [isAddressChanged, setIsAddressChanged] = useState(false);
+  const isFormValid = !streetAddressError && !aptNoError && !cityError && !zipCodeError
+  
+  const isAddressChanged = streetAddress !== initialAddress.streetAddress ||
+  aptNo !== initialAddress.aptNo ||
+  city !== initialAddress.city ||
+  zipCode !== initialAddress.zipCode;
 
   useEffect(() => {
     const fetchAddress = async () => {
@@ -68,42 +72,21 @@ const UserProfile = () => {
     fetchAddress();
   }, []);
 
-  useEffect(() => {
-    // Check if the current address is different from the fetched address
-    const hasAddressChanged =
-      streetAddress !== initialAddress.streetAddress ||
-      aptNo !== initialAddress.aptNo ||
-      city !== initialAddress.city ||
-      zipCode !== initialAddress.zipCode;
-
-    setIsAddressChanged(hasAddressChanged);
-  }, [streetAddress, aptNo, city, zipCode]);
-
-  useEffect(() => {
-    // Update isFormValid whenever there is a change in the validation status
-    setIsFormValid(
-      !streetAddressError && !aptNoError && !cityError && !zipCodeError
-    );
-  }, [streetAddressError, aptNoError, cityError, zipCodeError]);
 
   const handleInputChange = (field: string, value: string) => {
     // Update the corresponding state and reset the error for the field
     switch (field) {
       case "streetAddress":
         setStreetAddress(value);
-        setStreetAddressError("");
         break;
       case "aptNo":
         setAptNo(value);
-        setAptNoError("");
         break;
       case "city":
         setCity(value);
-        setCityError("");
         break;
       case "zipCode":
         setZipCode(value);
-        setZipCodeError("");
         break;
       default:
         break;
@@ -186,6 +169,7 @@ const UserProfile = () => {
     validateField("aptNo", aptNo);
     validateField("city", city);
     validateField("zipCode", zipCode);
+    
     // Check if the form is valid before proceeding to save
     if (isFormValid) {
       try {
