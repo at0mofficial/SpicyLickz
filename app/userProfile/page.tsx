@@ -93,15 +93,18 @@ const UserProfile = () => {
     }
   };
 
-  const validateField = (field: string, value: string) => {
+  const validateField = (field: string, value: string): Boolean => {
     // Validation logic for each field
+    let result = true
     switch (field) {
       case "streetAddress":
         // Validation logic for streetAddress
         if (!value.trim()) {
           setStreetAddressError("Street Address can't be empty");
+          result = false;
         } else if (value.trim().length < 5) {
           setStreetAddressError("Must be at least 5 characters!");
+          result = false;
         } else {
           setStreetAddressError("");
         }
@@ -112,6 +115,7 @@ const UserProfile = () => {
           const apartmentNumberRegex = /^[a-zA-Z0-9\s.'-]+$/;
           if (!apartmentNumberRegex.test(value.trim())) {
             setAptNoError("Enter a valid apt number");
+            result = false;
           } else {
             setAptNoError("");
           }
@@ -123,6 +127,7 @@ const UserProfile = () => {
         // Validation logic for city
         if (!value.trim()) {
           setCityError("Select a city");
+          result = false;
         } else {
           setCityError("");
         }
@@ -132,8 +137,10 @@ const UserProfile = () => {
         const regx = /^[A-Za-z]\d[A-Za-z] ?\d[A-Za-z]\d$/;
         if (!value.trim()) {
           setZipCodeError("ZipCode can't be empty");
+          result = false;
         } else if (!regx.test(value.trim())) {
           setZipCodeError(`Enter a valid zipCode, e.g., (A1A A1A)`);
+          result = false;
         } else {
           setZipCodeError("");
         }
@@ -141,6 +148,7 @@ const UserProfile = () => {
       default:
         break;
     }
+    return result
   };
 
   const handleInputBlur = (field: string, value: string) => {
@@ -161,23 +169,40 @@ const UserProfile = () => {
     setZipCodeError("");
   };
 
+  function convertZipCode(zipCode:string) {
+    const regex = /^([A-Z]\d[A-Z])(\d[A-Z]\d)$/;
+    const match = zipCode.match(regex);
+  
+    if (match) {
+      const newZipCode = `${match[1]} ${match[2]}`;
+      return newZipCode;
+    } else {
+      return zipCode;
+    }
+  }
+
   const handleSaveAddress = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     // Validate all fields before attempting to save
-    validateField("streetAddress", streetAddress);
-    validateField("aptNo", aptNo);
-    validateField("city", city);
-    validateField("zipCode", zipCode);
+    const val_sa =  validateField("streetAddress", streetAddress);
+    const val_an = validateField("aptNo", aptNo);
+    const val_ct = validateField("city", city);
+    const val_zc = validateField("zipCode", zipCode);
     
     // Check if the form is valid before proceeding to save
-    if (isFormValid) {
+    if (val_sa && val_an && val_ct && val_zc) {
+      const newStreetAddress = streetAddress.trim();
+        const newAptNo = aptNo.trim();
+        const newCity = city.trim();
+        const newZipCode = convertZipCode(zipCode.trim());
+        
       try {
         const updatedAddress = {
-          streetAddress,
-          aptNo,
-          city,
-          zipCode,
+          streetAddress: newStreetAddress,
+          aptNo: newAptNo,
+          city: newCity,
+          zipCode: newZipCode,
         };
 
         // Call the update function
