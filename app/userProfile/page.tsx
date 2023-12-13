@@ -1,5 +1,4 @@
 "use client";
-
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
@@ -10,7 +9,6 @@ import {
 } from "@/lib/actions/user.actions";
 import toast from "react-hot-toast";
 import CityCombobox from "@/components/CityCombobox";
-import { usePathname } from "next/navigation";
 
 const UserProfile = () => {
   const { data: session, status } = useSession();
@@ -21,25 +19,28 @@ const UserProfile = () => {
 
   const [loading, setLoading] = useState(true);
 
-  const [streetAddressErrors, setStreetAddressErrors] = useState("empty");
-  const [aptNoErrors, setAptNoErrors] = useState("empty");
-  const [cityErrors, setCityErrors] = useState("empty");
-  const [zipCodeErrors, setZipCodeErrors] = useState("empty");
-
+  // State variables for user address
   const [streetAddress, setStreetAddress] = useState("");
   const [aptNo, setAptNo] = useState("");
   const [city, setCity] = useState("");
   const [zipCode, setZipCode] = useState("");
 
-  const [initialStreetAddress, setInitialStreetAddress] = useState("");
-  const [initialAptNo, setInitialAptNo] = useState("");
-  const [initialCity, setInitialCity] = useState("");
-  const [initialZipCode, setInitialZipCode] = useState("");
+  // Initial values for comparison
+  const [initialAddress, setInitialAddress] = useState({
+    streetAddress: "",
+    aptNo: "",
+    city: "",
+    zipCode: "",
+  });
 
-  const [streetAddressBorder, setStreetAddressBorder] = useState("border-none");
-  const [aptNoBorder, setAptNoBorder] = useState("border-none");
-  const [cityBorder, setCityBorder] = useState("border-none");
-  const [zipCodeBorder, setZipCodeBorder] = useState("border-none");
+  // State variables for form validation
+  const [streetAddressError, setStreetAddressError] = useState("");
+  const [aptNoError, setAptNoError] = useState("");
+  const [cityError, setCityError] = useState("");
+  const [zipCodeError, setZipCodeError] = useState("");
+
+  const [isFormValid, setIsFormValid] = useState(false);
+  const [isAddressChanged, setIsAddressChanged] = useState(false);
 
   useEffect(() => {
     const fetchAddress = async () => {
@@ -50,10 +51,13 @@ const UserProfile = () => {
         setCity(address.city);
         setZipCode(address.zipCode);
 
-        setInitialStreetAddress(address.streetAddress);
-        setInitialAptNo(address.aptNo);
-        setInitialCity(address.city);
-        setInitialZipCode(address.zipCode);
+        setInitialAddress({
+          streetAddress: address.streetAddress,
+          aptNo: address.aptNo,
+          city: address.city,
+          zipCode: address.zipCode,
+        });
+
         setLoading(false);
       } catch (error) {
         console.error("Error fetching user address:", error);
@@ -64,167 +68,148 @@ const UserProfile = () => {
     fetchAddress();
   }, []);
 
-  const isAddressChanged = !(
-    streetAddress === initialStreetAddress &&
-    aptNo === initialAptNo &&
-    city === initialCity &&
-    zipCode === initialZipCode
-  );
+  useEffect(() => {
+    // Check if the current address is different from the fetched address
+    const hasAddressChanged =
+      streetAddress !== initialAddress.streetAddress ||
+      aptNo !== initialAddress.aptNo ||
+      city !== initialAddress.city ||
+      zipCode !== initialAddress.zipCode;
 
-  const handleCancel = () => {
-    setStreetAddress(initialStreetAddress);
-    setAptNo(initialAptNo);
-    setCity(initialCity);
-    setZipCode(initialZipCode);
-
-    setStreetAddressErrors("empty");
-    setAptNoErrors("empty");
-    setCityErrors("empty");
-    setZipCodeErrors("empty");
-
-    setStreetAddressBorder("border-none");
-    setAptNoBorder("border-none");
-    setCityBorder("border-none");
-    setZipCodeBorder("border-none");
-  };
-
-  const handleStreetAddressChange = (e: any) => {
-    let allowedCharacters = /^[a-zA-Z0-9\s,.'-]+$/;
-    setStreetAddress(e.target.value);
-    if (!e.target.value.trim()) {
-      setStreetAddressBorder("border border-red-500");
-    } else if (e.target.value.length < 5) {
-      setStreetAddressBorder("border border-red-500");
-    } else if (!allowedCharacters.test(e.target.value.trim())) {
-      setStreetAddressBorder("border border-red-500");
-    } else {
-      setStreetAddressBorder("border border-green-500");
-    }
-  };
-
-  const handleAptNoChange = (e: any) => {
-    const apartmentNumberRegex = /^[a-zA-Z0-9\s.'-]+$/;
-    setAptNo(e.target.value);
-    if (e.target.value.trim().length > 0) {
-      if (!apartmentNumberRegex.test(e.target.value.trim())) {
-        setAptNoBorder("border border-red-500");
-      } else {
-        setAptNoBorder("border border-green-500");
-      }
-    }
-  };
-
-  const handleZipCodeChange = (e: any) => {
-    const regx = /^[A-Za-z]\d[A-Za-z] ?\d[A-Za-z]\d$/;
-    setZipCode(e.target.value);
-    if (!e.target.value.trim()) {
-      setZipCodeBorder("border border-red-500");
-    } else if (!regx.test(e.target.value.trim())) {
-      setZipCodeBorder("border border-red-500");
-    } else {
-      setZipCodeBorder("border border-green-500");
-    }
-  };
-
-  const handleStreetAddressValidations = () => {
-    let allowedCharacters = /^[a-zA-Z0-9\s,.'-]+$/;
-    if (!(streetAddress.trim().length > 0)) {
-      setStreetAddressErrors("Street Address can't be empty");
-      setStreetAddressBorder("border border-red-500");
-    } else if (streetAddress.trim().length < 5) {
-      setStreetAddressErrors("Must be atleast 5 characters!");
-      setStreetAddressBorder("border border-red-500");
-    } else if (!allowedCharacters.test(streetAddress.trim())) {
-      setStreetAddressErrors("Street address contains invalid characters!");
-      setStreetAddressBorder("border border-red-500");
-    } else {
-      setStreetAddressBorder("border border-green-500");
-      setStreetAddressErrors("");
-    }
-  };
-  const handleAptNoValidations = () => {
-    const apartmentNumberRegex = /^[a-zA-Z0-9\s.'-]+$/;
-    if (aptNo.length > 0) {
-      if (!apartmentNumberRegex.test(aptNo.trim())) {
-        setAptNoErrors("Enter a valid apt number");
-        setAptNoBorder("border border-red-500");
-      } else {
-        setAptNoErrors("");
-        setAptNoBorder("border border-green-500");
-      }
-    } else {
-      setAptNoErrors("");
-    }
-  };
-  const handleCityValidations = () => {
-    if (!(city.length > 0)) {
-      setCityErrors("Select a city");
-      setCityBorder("border border-red-500");
-    } else {
-      setCityErrors("");
-      setCityBorder("border-none");
-    }
-  };
-  const handleZipCodeValidations = () => {
-    const regx = /^[A-Za-z]\d[A-Za-z] ?\d[A-Za-z]\d$/;
-    if (!zipCode.trim()) {
-      setZipCodeErrors(`ZipCode can't be empty`);
-      setZipCodeBorder("border border-red-500");
-    } else if (!regx.test(zipCode.trim())) {
-      setZipCodeErrors(`Enter a valid zipCode eg:(A1A A1A)`);
-      setZipCodeBorder("border border-red-500");
-    } else {
-      setZipCodeErrors(``);
-      setZipCodeBorder("border border-green-500");
-    }
-  };
-
-  const handleSaveChanges = async () => {
-    handleStreetAddressValidations();
-    handleAptNoValidations();
-    handleCityValidations();
-    handleZipCodeValidations();
-  };
+    setIsAddressChanged(hasAddressChanged);
+  }, [streetAddress, aptNo, city, zipCode]);
 
   useEffect(() => {
-    const isFormValid = !(
-      streetAddressErrors ||
-      aptNoErrors ||
-      cityErrors ||
-      zipCodeErrors
+    // Update isFormValid whenever there is a change in the validation status
+    setIsFormValid(
+      !streetAddressError && !aptNoError && !cityError && !zipCodeError
     );
+  }, [streetAddressError, aptNoError, cityError, zipCodeError]);
 
-    // If the form is valid and there are changes, submit the form
-    if (isFormValid && isAddressChanged) {
-      try {
-        const finalAddress = {
-          streetAddress: streetAddress,
-          aptNo: aptNo,
-          city: city,
-          zipCode: zipCode,
-        };
-        updateUserAddress(finalAddress).then(() => {
-          toast.success("Saved!");
-          setInitialStreetAddress(streetAddress);
-          setInitialAptNo(aptNo);
-          setInitialCity(city);
-          setInitialZipCode(zipCode);
-        });
-      } catch (err: any) {
-        toast.error(err.message);
-      }
+  const handleInputChange = (field: string, value: string) => {
+    // Update the corresponding state and reset the error for the field
+    switch (field) {
+      case "streetAddress":
+        setStreetAddress(value);
+        setStreetAddressError("");
+        break;
+      case "aptNo":
+        setAptNo(value);
+        setAptNoError("");
+        break;
+      case "city":
+        setCity(value);
+        setCityError("");
+        break;
+      case "zipCode":
+        setZipCode(value);
+        setZipCodeError("");
+        break;
+      default:
+        break;
     }
-  }, [
-    streetAddress,
-    aptNo,
-    city,
-    zipCode,
-    streetAddressErrors,
-    aptNoErrors,
-    cityErrors,
-    zipCodeErrors,
-    isAddressChanged,
-  ]);
+  };
+
+  const validateField = (field: string, value: string) => {
+    // Validation logic for each field
+    switch (field) {
+      case "streetAddress":
+        // Validation logic for streetAddress
+        if (!value.trim()) {
+          setStreetAddressError("Street Address can't be empty");
+        } else if (value.trim().length < 5) {
+          setStreetAddressError("Must be at least 5 characters!");
+        } else {
+          setStreetAddressError("");
+        }
+        break;
+      case "aptNo":
+        // Validation logic for aptNo
+        if (value.trim().length > 0) {
+          const apartmentNumberRegex = /^[a-zA-Z0-9\s.'-]+$/;
+          if (!apartmentNumberRegex.test(value.trim())) {
+            setAptNoError("Enter a valid apt number");
+          } else {
+            setAptNoError("");
+          }
+        } else {
+          setAptNoError("");
+        }
+        break;
+      case "city":
+        // Validation logic for city
+        if (!value.trim()) {
+          setCityError("Select a city");
+        } else {
+          setCityError("");
+        }
+        break;
+      case "zipCode":
+        // Validation logic for zipCode
+        const regx = /^[A-Za-z]\d[A-Za-z] ?\d[A-Za-z]\d$/;
+        if (!value.trim()) {
+          setZipCodeError("ZipCode can't be empty");
+        } else if (!regx.test(value.trim())) {
+          setZipCodeError(`Enter a valid zipCode, e.g., (A1A A1A)`);
+        } else {
+          setZipCodeError("");
+        }
+        break;
+      default:
+        break;
+    }
+  };
+
+  const handleInputBlur = (field: string, value: string) => {
+    // Validate the field on blur
+    validateField(field, value);
+  };
+
+  const handleCancel = () => {
+    // Reset the fields to initial values and clear error messages
+    setStreetAddress(initialAddress.streetAddress);
+    setAptNo(initialAddress.aptNo);
+    setCity(initialAddress.city);
+    setZipCode(initialAddress.zipCode);
+
+    setStreetAddressError("");
+    setAptNoError("");
+    setCityError("");
+    setZipCodeError("");
+  };
+
+  const handleSaveAddress = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    // Validate all fields before attempting to save
+    validateField("streetAddress", streetAddress);
+    validateField("aptNo", aptNo);
+    validateField("city", city);
+    validateField("zipCode", zipCode);
+    // Check if the form is valid before proceeding to save
+    if (isFormValid) {
+      try {
+        const updatedAddress = {
+          streetAddress,
+          aptNo,
+          city,
+          zipCode,
+        };
+
+        // Call the update function
+        await updateUserAddress(updatedAddress);
+
+        // Update the initialAddress for future comparisons
+        setInitialAddress(updatedAddress);
+
+        toast.success("Address saved successfully!");
+      } catch (error) {
+        toast.error("Error saving address. Please try again.");
+      }
+    } else {
+      toast.error("Please fill in all required fields correctly.");
+    }
+  };
 
   if (status === "loading" || loading) {
     return (
@@ -232,34 +217,31 @@ const UserProfile = () => {
         <ClipLoader color="#ff2f00" size={50} speedMultiplier={2} />
       </div>
     );
-  } 
-  else {
-    return (
-      <main className="flex justify-center mt-[60px] mb-[100px]">
-        <div className="flex flex-col gap-[60px] lg:w-[800px] lg:rounded-md lg:shadow-2xl w-full md:px-[40px] lg:px-[100px] md:pt-[60px] md:pb-[100px]">
-          <div className="flex flex-col items-center gap-3 justify-center">
-            <Image
-              src={userImage}
-              alt="profile picture"
-              width={140}
-              height={140}
-              className="shrink-0 rounded-full"
-            />
-            <div className="text-center">
-              <p className="text-xl text-[#464646] uppercase font-semibold">
-                {userName}
-              </p>
-              <p className="text-sm text-[#707070] uppercase font-semibold">
-                {userEmail}
-              </p>
-            </div>
+  }
+
+  return (
+    <main className="flex justify-center mt-[60px] mb-[100px]">
+      <div className="flex flex-col gap-[60px] lg:w-[800px] lg:rounded-md lg:shadow-2xl w-full md:px-[40px] lg:px-[100px] md:pt-[60px] md:pb-[100px]">
+        <div className="flex flex-col items-center gap-3 justify-center">
+          <Image
+            src={userImage}
+            alt="profile picture"
+            width={140}
+            height={140}
+            className="shrink-0 rounded-full"
+          />
+          <div className="text-center">
+            <h1 className="text-2xl text-dark font-semibold">{userName}</h1>
+            <p className="text-sm text-gray">{userEmail}</p>
           </div>
+        </div>
 
-          <div className="flex flex-col gap-4 text-left px-5 md:px-14 w-full">
-            <h4 className="text-lg text-dark px-2 font-semibold">
-              User Address
-            </h4>
-
+        <div className="flex flex-col gap-4 text-left px-5 md:px-14 w-full">
+          <h4 className="text-lg text-dark px-2 font-semibold">User Address</h4>
+          <form
+            onSubmit={handleSaveAddress}
+            className="flex flex-col gap-4 w-full"
+          >
             <div className="w-full flex flex-col">
               <label
                 htmlFor="streetAddress"
@@ -271,15 +253,19 @@ const UserProfile = () => {
                 type="text"
                 name="streetAddress"
                 id="streetAddress"
-                placeholder="Enter your City"
+                placeholder="Enter your Street Address"
                 value={streetAddress}
-                onChange={handleStreetAddressChange}
-                onBlur={handleStreetAddressValidations}
-                className={`${streetAddressBorder} placeholder:text-sm placeholder:font-normal bg-[#f1f1f1] font-medium text-gray outline-none px-5 py-2 w-[95%] max-w-[95%] rounded-xl`}
+                onChange={(e) =>
+                  handleInputChange("streetAddress", e.target.value)
+                }
+                onBlur={() => handleInputBlur("streetAddress", streetAddress)}
+                className={`${
+                  streetAddressError ? "border border-red-500" : "border-none"
+                } placeholder:text-sm placeholder:font-normal bg-[#f1f1f1] font-medium text-gray outline-none px-5 py-2 w-[95%] max-w-[95%] rounded-xl`}
               />
-              {streetAddressErrors && streetAddressErrors !== "empty" && (
-                <span className="text-red-500 text-sm mt-1 w-[95%] max-w-[95%]">
-                  {streetAddressErrors}
+              {streetAddressError && (
+                <span className="text-red-500 px-2 text-sm mt-1 w-[95%] max-w-[95%]">
+                  {streetAddressError}
                 </span>
               )}
             </div>
@@ -287,21 +273,23 @@ const UserProfile = () => {
             <div className="flex gap-4 w-[95%] max-w-[95%]">
               <div className="w-full flex flex-col">
                 <label htmlFor="aptNo" className="font-medium px-2 text-dark">
-                  AptNo
+                  Apartment Number
                 </label>
                 <input
                   type="text"
                   name="aptNo"
                   id="aptNo"
-                  placeholder="Enter your Apt No"
+                  placeholder="Enter your AptNo"
                   value={aptNo}
-                  onChange={handleAptNoChange}
-                  onBlur={handleAptNoValidations}
-                  className={`${aptNoBorder} placeholder:text-sm placeholder:font-normal bg-[#f1f1f1] font-medium text-gray outline-none px-5 py-2 w-full rounded-xl`}
+                  onChange={(e) => handleInputChange("aptNo", e.target.value)}
+                  onBlur={() => handleInputBlur("aptNo", aptNo)}
+                  className={`${
+                    aptNoError ? "border border-red-500" : "border-none"
+                  } placeholder:text-sm placeholder:font-normal bg-[#f1f1f1] font-medium text-gray outline-none px-5 py-2 w-full rounded-xl`}
                 />
-                {aptNoErrors && aptNoErrors !== "empty" && (
-                  <span className="text-red-500 text-sm mt-1 w-[95%] max-w-[95%]">
-                    {aptNoErrors}
+                {aptNoError && (
+                  <span className="text-red-500 px-2 text-sm mt-1 w-[95%] max-w-[95%]">
+                    {aptNoError}
                   </span>
                 )}
               </div>
@@ -313,14 +301,16 @@ const UserProfile = () => {
                 <CityCombobox
                   selected={city}
                   onChange={(value) => {
-                    setCity(value);
-                    handleCityValidations();
+                    handleInputChange("city", value);
+                    handleInputBlur("city", city);
                   }}
-                  cityBorder={cityBorder}
+                  cityBorder={`${
+                    cityError ? "border border-red-500" : "border-none"
+                  }`}
                 />
-                {cityErrors && cityErrors !== "empty" && (
-                  <span className="text-red-500 text-sm mt-1 w-[95%] max-w-[95%]">
-                    {cityErrors}
+                {cityError && (
+                  <span className="text-red-500 px-2 text-sm mt-1 w-[95%] max-w-[95%]">
+                    {cityError}
                   </span>
                 )}
               </div>
@@ -329,21 +319,23 @@ const UserProfile = () => {
             <div className="flex gap-4 w-[95%] max-w-[95%]">
               <div className="w-full flex flex-col">
                 <label htmlFor="zipCode" className="font-medium px-2 text-dark">
-                  ZipCode
+                  Zip Code
                 </label>
                 <input
                   type="text"
                   name="zipCode"
                   id="zipCode"
+                  placeholder="Enter your Zip Code"
                   value={zipCode}
-                  placeholder="Enter your zipcode"
-                  onChange={handleZipCodeChange}
-                  onBlur={handleZipCodeValidations}
-                  className={`${zipCodeBorder} placeholder:text-sm placeholder:font-normal bg-[#f1f1f1] font-medium text-gray outline-none px-5 py-2 w-full rounded-xl`}
+                  onChange={(e) => handleInputChange("zipCode", e.target.value)}
+                  onBlur={() => handleInputBlur("zipCode", zipCode)}
+                  className={`${
+                    zipCodeError ? "border border-red-500" : "border-none"
+                  } placeholder:text-sm placeholder:font-normal bg-[#f1f1f1] font-medium text-gray outline-none px-5 py-2 w-full rounded-xl`}
                 />
-                {zipCodeErrors && zipCodeErrors !== "empty" && (
-                  <span className="text-red-500 text-sm mt-1 w-[95%] max-w-[95%]">
-                    {zipCodeErrors}
+                {zipCodeError && (
+                  <span className="text-red-500 px-2 text-sm mt-1 w-[95%] max-w-[95%]">
+                    {zipCodeError}
                   </span>
                 )}
               </div>
@@ -366,17 +358,21 @@ const UserProfile = () => {
                 />
               </div>
             </div>
+
             <div className="flex gap-4 w-[95%] mt-6 max-w-[95%]">
               <button
-                onClick={handleSaveChanges}
-                disabled={!isAddressChanged}
-                className="ml-[-4px] px-8 py-4 text-sm w-fit bg-dark  shadow-xl text-[#f1f1f1] rounded-3xl font-semibold"
+                type="submit"
+                disabled={!isAddressChanged || !isFormValid}
+                className={`${
+                  isAddressChanged ? "bg-dark" : "bg-gray"
+                } ml-[-4px] px-8 py-4 text-sm w-fit   shadow-xl text-[#f1f1f1] rounded-3xl font-semibold`}
               >
                 Save Changes
               </button>
 
               {isAddressChanged && (
                 <button
+                  type="button"
                   onClick={handleCancel}
                   className="ml-[-4px] px-8 py-4 text-sm w-fit bg-primary shadow-xl text-[#f1f1f1] rounded-3xl font-semibold"
                 >
@@ -384,11 +380,11 @@ const UserProfile = () => {
                 </button>
               )}
             </div>
-          </div>
+          </form>
         </div>
-      </main>
-    );
-  }
+      </div>
+    </main>
+  );
 };
 
 export default UserProfile;
