@@ -12,7 +12,7 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: true,
+    default: undefined,
   },
   imageUrl: {
     type: String,
@@ -31,10 +31,10 @@ const userSchema = new mongoose.Schema({
       type: String,
       default: "",
     },
-    aptNo:{
+    aptNo: {
       type: String,
       default: "",
-    }
+    },
   },
   cart: {
     type: [
@@ -68,6 +68,8 @@ const userSchema = new mongoose.Schema({
     default: false,
   },
 });
+userSchema.index({ 'verification.code': 1 }, { unique: true, sparse: true });
+
 
 const User = mongoose.models.User || mongoose.model("User", userSchema);
 

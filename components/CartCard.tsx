@@ -1,6 +1,6 @@
 "use client";
 import { decreaseDBMealQty, deleteItemFromDBCart, increaseDBMealQty } from "@/lib/actions/user.actions";
-import { decreaseLocalMealQty, deleteItemFromLocalStorage, increaseLocalMealQty } from "@/lib/utils";
+import { decreaseLocalMealQty, deleteItemFromLocalStorage, increaseLocalMealQty } from "@/lib/actions/localStorage.action";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import React, { useState } from "react";

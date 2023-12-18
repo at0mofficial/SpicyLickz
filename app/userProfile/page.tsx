@@ -12,7 +12,7 @@ import CityCombobox from "@/components/CityCombobox";
 
 const UserProfile = () => {
   const { data: session, status } = useSession();
-  const userImage = session?.user?.imageUrl || "/no-user.jpg";
+  const userImage = session?.user?.image || "/no-user.jpg";
   const userEmail = session?.user?.email || "";
   const userName = session?.user?.name || "";
   const userProvince = "Ontario";
@@ -39,12 +39,14 @@ const UserProfile = () => {
   const [cityError, setCityError] = useState("");
   const [zipCodeError, setZipCodeError] = useState("");
 
-  const isFormValid = !streetAddressError && !aptNoError && !cityError && !zipCodeError
-  
-  const isAddressChanged = streetAddress !== initialAddress.streetAddress ||
-  aptNo !== initialAddress.aptNo ||
-  city !== initialAddress.city ||
-  zipCode !== initialAddress.zipCode;
+  const isFormValid =
+    !streetAddressError && !aptNoError && !cityError && !zipCodeError;
+
+  const isAddressChanged =
+    streetAddress !== initialAddress.streetAddress ||
+    aptNo !== initialAddress.aptNo ||
+    city !== initialAddress.city ||
+    zipCode !== initialAddress.zipCode;
 
   useEffect(() => {
     const fetchAddress = async () => {
@@ -72,9 +74,7 @@ const UserProfile = () => {
     fetchAddress();
   }, []);
 
-
   const handleInputChange = (field: string, value: string) => {
-    // Update the corresponding state and reset the error for the field
     switch (field) {
       case "streetAddress":
         setStreetAddress(value);
@@ -95,7 +95,7 @@ const UserProfile = () => {
 
   const validateField = (field: string, value: string): Boolean => {
     // Validation logic for each field
-    let result = true
+    let result = true;
     switch (field) {
       case "streetAddress":
         // Validation logic for streetAddress
@@ -148,7 +148,7 @@ const UserProfile = () => {
       default:
         break;
     }
-    return result
+    return result;
   };
 
   const handleInputBlur = (field: string, value: string) => {
@@ -169,10 +169,10 @@ const UserProfile = () => {
     setZipCodeError("");
   };
 
-  function convertZipCode(zipCode:string) {
+  function convertZipCode(zipCode: string) {
     const regex = /^([A-Z]\d[A-Z])(\d[A-Z]\d)$/;
     const match = zipCode.match(regex);
-  
+
     if (match) {
       const newZipCode = `${match[1]} ${match[2]}`;
       return newZipCode;
@@ -185,18 +185,18 @@ const UserProfile = () => {
     e.preventDefault();
 
     // Validate all fields before attempting to save
-    const val_sa =  validateField("streetAddress", streetAddress);
+    const val_sa = validateField("streetAddress", streetAddress);
     const val_an = validateField("aptNo", aptNo);
     const val_ct = validateField("city", city);
     const val_zc = validateField("zipCode", zipCode);
-    
+
     // Check if the form is valid before proceeding to save
     if (val_sa && val_an && val_ct && val_zc) {
       const newStreetAddress = streetAddress.trim();
-        const newAptNo = aptNo.trim();
-        const newCity = city.trim();
-        const newZipCode = convertZipCode(zipCode.trim());
-        
+      const newAptNo = aptNo.trim();
+      const newCity = city.trim();
+      const newZipCode = convertZipCode(zipCode.trim());
+
       try {
         const updatedAddress = {
           streetAddress: newStreetAddress,
@@ -249,7 +249,7 @@ const UserProfile = () => {
           <h4 className="text-lg text-dark px-2 font-semibold">User Address</h4>
           <form
             onSubmit={handleSaveAddress}
-            className="flex flex-col gap-4 w-full"
+            className="flex flex-col gap-4 w-full max-w-full"
           >
             <div className="w-full flex flex-col">
               <label
@@ -270,7 +270,7 @@ const UserProfile = () => {
                 onBlur={() => handleInputBlur("streetAddress", streetAddress)}
                 className={`${
                   streetAddressError ? "border border-red-500" : "border-none"
-                } placeholder:text-sm placeholder:font-normal bg-[#f1f1f1] font-medium text-gray outline-none px-5 py-2 w-[95%] max-w-[95%] rounded-xl`}
+                } placeholder:text-sm placeholder:font-normal bg-[#f1f1f1] font-medium text-gray outline-none px-5 py-2 rounded-xl`}
               />
               {streetAddressError && (
                 <span className="text-red-500 px-2 text-sm mt-1 w-[95%] max-w-[95%]">
@@ -279,7 +279,7 @@ const UserProfile = () => {
               )}
             </div>
 
-            <div className="flex gap-4 w-[95%] max-w-[95%]">
+            <div className="flex gap-4">
               <div className="w-full flex flex-col">
                 <label htmlFor="aptNo" className="font-medium px-2 text-dark">
                   Apartment Number
@@ -325,7 +325,7 @@ const UserProfile = () => {
               </div>
             </div>
 
-            <div className="flex gap-4 w-[95%] max-w-[95%]">
+            <div className="flex gap-4">
               <div className="w-full flex flex-col">
                 <label htmlFor="zipCode" className="font-medium px-2 text-dark">
                   Zip Code
@@ -374,7 +374,7 @@ const UserProfile = () => {
                 disabled={!isAddressChanged || !isFormValid}
                 className={`${
                   isAddressChanged ? "bg-dark" : "bg-gray"
-                } ml-[-4px] px-8 py-4 text-sm w-fit   shadow-xl text-[#f1f1f1] rounded-3xl font-semibold`}
+                } ml-[-4px] px-8 py-4 text-sm w-fit   shadow-xl text-[#f1f1f1] rounded-full font-semibold`}
               >
                 Save Changes
               </button>
@@ -383,7 +383,7 @@ const UserProfile = () => {
                 <button
                   type="button"
                   onClick={handleCancel}
-                  className="ml-[-4px] px-8 py-4 text-sm w-fit bg-primary shadow-xl text-[#f1f1f1] rounded-3xl font-semibold"
+                  className="ml-[-4px] px-8 py-4 text-sm w-fit bg-primary shadow-xl text-[#f1f1f1] rounded-full font-semibold"
                 >
                   Cancel
                 </button>

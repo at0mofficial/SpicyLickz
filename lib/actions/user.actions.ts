@@ -45,6 +45,10 @@ export async function registerUser({
         reject(new Error("Account already registered. Please login."));
         return;
       }
+      if (!password){
+        reject(new Error("Password is required"));
+        return;
+      }
       const hashedPassword = await hashPassword(password);
       const verificationCode = await generateVerificationCode();
       const verificationLink = `http://localhost:3000/activateUser/${verificationCode}`;
@@ -411,7 +415,7 @@ export async function mergeLocalAndDBCart(
       localCart.forEach((localCartItem: { meal: string; quantity: number }) => {
         const existingCartItemIndex = user.cart.findIndex(
           (dbCartItem: { meal: string; quantity: number }) =>
-            dbCartItem.meal === localCartItem.meal
+            dbCartItem.meal.toString() === localCartItem.meal.toString()
         );
 
         if (existingCartItemIndex === -1) {

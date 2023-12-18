@@ -9,7 +9,7 @@ import UserDisplay from "./UserDisplay";
 
 const Navbar = () => {
   const { data: session, status } = useSession();
-    const userImage = session?.user?.imageUrl || "/no-user.jpg"
+    const userImage = session?.user?.image || "/no-user.jpg"
   return (
     <header className="px-5 py-3 max-xs:px-3 w-full bg-white z-50">
       <nav className="flex justify-between items-center text-base text-dark">

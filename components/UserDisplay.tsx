@@ -42,14 +42,14 @@ export default function UserDisplay({ userImage }: { userImage: string }) {
             leaveTo="transform opacity-0 scale-95"
           >
             <Menu.Items className="absolute right-0 mt-2 w-[240px] origin-top-right rounded-3xl bg-white shadow-lg ring-1 ring-dark/5 focus:outline-none">
-              <div className="px-3 py-2">
+              <div className="px-3 py-3">
                 <Menu.Item>
                   {({ active }) => (
                     <Link
                       href={`/userProfile`}
                       className={`${
                         active ? "bg-secondary text-white" : "text-secondary"
-                      } group flex w-full items-center justify-start gap-3 rounded-3xl px-5 py-3 text-base font-semibold tracking-wide`}
+                      } group flex w-full items-center justify-start gap-3 rounded-3xl my-1 px-5 py-3 text-base font-semibold tracking-wide`}
                     >
                       {active ? (
                         <Image
@@ -78,7 +78,7 @@ export default function UserDisplay({ userImage }: { userImage: string }) {
                       href={`/cart`}
                       className={`${
                         active ? "bg-secondary text-white" : "text-secondary"
-                      } group flex w-full items-center justify-start gap-3 rounded-3xl px-5 py-3 md:hidden text-base font-semibold tracking-wide`}
+                      } group flex w-full items-center justify-start gap-3 rounded-3xl my-1 px-5 py-3 md:hidden text-base font-semibold tracking-wide`}
                     >
                       {active ? (
                         <Image
@@ -109,7 +109,7 @@ export default function UserDisplay({ userImage }: { userImage: string }) {
                       }}
                       className={`${
                         active ? "bg-secondary text-white" : "text-secondary"
-                      } group flex w-full items-center justify-start gap-3 rounded-3xl px-5 py-3 text-base font-semibold tracking-wide`}
+                      } group flex w-full items-center justify-start gap-3 rounded-3xl my-1 px-5 py-3 text-base font-semibold tracking-wide`}
                     >
                       {active ? (
                         <Image

@@ -47,7 +47,7 @@ const Cart = async () => {
                 userCart.length > 0 &&
                 userCart.map((cartItem: CartItem) => (
                   <CartCard
-                    key={cartItem.meal._id}
+                    key={cartItem.meal._id.toString()}
                     id={cartItem.meal._id.toString()}
                     title={cartItem.meal.title}
                     description={cartItem.meal.description}
@@ -84,12 +84,12 @@ const Cart = async () => {
                     </p>
                   </div>
                 </div>
-                <button className="ml-[-6px] px-8 py-4 text-sm w-fit bg-dark shadow-xl text-[#f1f1f1] rounded-3xl font-semibold">
+                <button className="ml-[-6px] px-8 py-4 text-sm w-fit bg-dark shadow-xl text-[#f1f1f1] rounded-full font-semibold">
                   Change Address
                 </button>
               </div>
             ) : (
-              <Link href={`/userProfile`} className="ml-[-6px] px-8 py-4 text-sm w-fit bg-primary shadow-xl text-[#f1f1f1] rounded-3xl font-semibold">
+              <Link href={`/userProfile`} className="ml-[-6px] px-8 py-4 text-sm w-fit bg-primary shadow-xl text-[#f1f1f1] rounded-full font-semibold">
                 Add an address
               </Link>
             )}
@@ -116,7 +116,7 @@ const Cart = async () => {
                 Total<span className="">${total.toFixed(2)}</span>
               </p>
             </div>
-            <button className="ml-[-6px] px-8 py-4 text-sm w-fit bg-dark shadow-xl text-[#f1f1f1] rounded-3xl font-semibold">
+            <button className="ml-[-6px] px-8 py-4 text-sm w-fit bg-dark shadow-xl text-[#f1f1f1] rounded-full font-semibold">
               Place Order
             </button>
           </div>
@@ -134,7 +134,7 @@ const Cart = async () => {
           </span>
           <Link
             href={`/menu`}
-            className="mt-4 px-5 py-3 w-fit bg-primary shadow-xl text-[#f1f1f1] rounded-3xl font-semibold"
+            className="mt-4 px-5 py-3 w-fit bg-primary shadow-xl text-[#f1f1f1] rounded-full font-semibold"
           >
             Continue Shopping
           </Link>

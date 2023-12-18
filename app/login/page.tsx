@@ -22,55 +22,74 @@ const Login = () => {
   const isFormValid = !(emailError || passwordError);
   const [loginError, setLoginError] = useState("");
 
-  const handleEmailChange = (e: any) => {
-    setEmail(e.target.value);
-    if (!testEmail(e.target.value)) {
-      setEmailBorder("border-red-500");
-    } else {
-      setEmailBorder("border-green-500");
-      setEmailError("");
+  const handleInputChange = (field: string, value: string) => {
+    switch (field) {
+      case "email":
+        setEmail(value);
+        if (!testEmail(value)) {
+          setEmailBorder("border-red-500");
+        } else {
+          setEmailBorder("border-green-500");
+          setEmailError("");
+        }
+        break;
+      case "password":
+        setPassword(value);
+        if (!value) {
+          setPasswordBorder("border-red-500");
+        } else {
+          setPasswordBorder("border-green-500");
+          setPasswordError("");
+        }
+        break;
+      default:
+        break;
     }
   };
 
-  const handlePasswordChange = (e: any) => {
-    setPassword(e.target.value);
-    if (!e.target.value) {
-      setPasswordBorder("border-red-500");
-    } else {
-      setPasswordBorder("border-green-500");
-      setPasswordError("");
+  const validateField = (field: string, value: string): Boolean => {
+    let result = true;
+    switch (field) {
+      case "email":
+        if (!value.trim()) {
+          setEmailError("Email cannot be empty");
+          setEmailBorder("border-red-500");
+          result = false;
+        } else if (!testEmail(value.trim())) {
+          setEmailError("Email format should be valid!");
+          setEmailBorder("border-red-500");
+          result = false;
+        } else {
+          setEmailBorder("border-green-500");
+          setEmailError("");
+        }
+        break;
+      case "password":
+        if (!value) {
+          setPasswordError("Password cannot be empty");
+          setPasswordBorder("border-red-500");
+          result = false;
+        } else {
+          setPasswordBorder("border-green-500");
+          setPasswordError("");
+        }
+        break;
+      default:
+        break;
     }
+    return result;
   };
 
-  const validateEmail = () => {
-    if (!email.trim()) {
-      setEmailError("Email cannot be empty");
-      setEmailBorder("border-red-500");
-    } else if (!testEmail(email.trim())) {
-      setEmailError("Email format should be valid!");
-      setEmailBorder("border-red-500");
-    } else {
-      setEmailBorder("border-green-500");
-      setEmailError("");
-    }
-  };
-
-  const validatePassword = () => {
-    if (!password) {
-      setPasswordError("Password cannot be empty");
-      setPasswordBorder("border-red-500");
-    } else {
-      setPasswordBorder("border-green-500");
-      setPasswordError("");
-    }
+  const handleInputBlur = (field: string, value: string) => {
+    validateField(field, value);
   };
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    validateEmail();
-    validatePassword();
+    const val_em = validateField("email", email);
+    const val_ps = validateField("password", password);
 
-    if (isFormValid) {
+    if (val_em && val_ps) {
       try {
         const res = await signIn("credentials", {
           redirect: false,
@@ -96,6 +115,25 @@ const Login = () => {
       }
     }
   };
+  const googleSignIn = async () => {
+    try {
+      const res = await signIn("google", {
+        redirect: false,
+      });
+
+      if (!res?.error) {
+        if (callbackUrl && callbackUrl !== "/signup") {
+          router.push(callbackUrl);
+        } else {
+          router.push("/menu");
+        }
+      } else {
+        toast.error(res.error);
+      }
+    } catch (err: any) {
+      console.error(err);
+    }
+  };
 
   const handleEmailVerification = async () => {
     try {
@@ -105,103 +143,109 @@ const Login = () => {
       toast.error(err.message);
     }
   };
-    return (
-      <section className="flex justify-center pt-[60px] pb-[100px]">
-        <div className="flex flex-col items-center justify-start gap-[60px] lg:w-[760px] w-full md:px-[40px] lg:px-[100px]">
-          <div className="flex flex-col items-center gap-3 justify-center">
-          <Image src="login_logo.svg" alt="Login Logo" width={110} height={110} />
-              <h3 className="text-2xl text-center text-dark uppercase font-semibold">
-                Login
-              </h3>
+  return (
+    <section className="flex flex-col items-center justify-center gap-14 pt-[80px] pb-[100px]">
+      <div className="flex flex-col items-center justify-start gap-[60px] lg:w-[760px] w-full md:px-[40px] lg:px-[100px]">
+        <h2 className="text-2xl text-dark uppercase font-semibold">Login</h2>
+        <form
+          onSubmit={handleLogin}
+          className="flex flex-col gap-4 text-left px-12 md:px-28 w-full"
+        >
+          <div className="flex flex-col gap-1 text-left">
+            <label htmlFor="email" className="font-medium px-2 text-dark">
+              Email
+            </label>
+            <input
+              type="email"
+              name="email"
+              id="email"
+              placeholder="example@email.com"
+              value={email}
+              onChange={(e) => handleInputChange("email", e.target.value)}
+              onBlur={() => handleInputBlur("email", email)}
+              className={`${emailBorder} placeholder:text-sm placeholder:font-normal bg-[#f1f1f1] text-gray outline-none px-5 py-2 rounded-xl border`}
+            />
+            {emailError && (
+              <span className="text-red-500 text-sm mt-1 w-[95%] max-w-[95%]">
+                {emailError}
+              </span>
+            )}
           </div>
-  
-          <form
-            onSubmit={handleLogin}
-            className="flex flex-col gap-4 text-left px-12 md:px-28 w-full"
-          >
-            <div className="flex flex-col gap-1 text-left">
-              <label htmlFor="email" className="font-medium px-2 text-dark">
-                Email
-              </label>
-              <input
-                type="email"
-                name="email"
-                id="email"
-                placeholder="example@email.com"
-                value={email}
-                onChange={handleEmailChange}
-                onBlur={validateEmail}
-                className={`${emailBorder} placeholder:text-sm placeholder:font-normal bg-[#f1f1f1] text-gray outline-none px-5 py-2 w-[95%] max-w-[95%] rounded-xl border`}
-              />
-              {emailError && (
-                <span className="text-red-500 text-sm mt-1 w-[95%] max-w-[95%]">
-                  {emailError}
-                </span>
-              )}
-            </div>
-            <div className="flex flex-col gap-1 text-left">
-              <label htmlFor="password" className="font-medium px-2 text-dark">
-                Password
-              </label>
-              <input
-                type="password"
-                name="password"
-                id="password"
-                placeholder="abcd@123"
-                value={password}
-                onChange={handlePasswordChange}
-                onBlur={validatePassword}
-                className={`${passwordBorder} placeholder:text-sm placeholder:font-normal bg-[#f1f1f1] text-gray outline-none px-5 py-2 w-[95%] max-w-[95%] rounded-xl border`}
-              />
-              {passwordError && (
-                <span className="text-red-500 text-sm mt-1 w-[95%] max-w-[95%]">
-                  {passwordError}
-                </span>
-              )}
-            </div>
-  
+          <div className="flex flex-col gap-1 text-left">
+            <label htmlFor="password" className="font-medium px-2 text-dark">
+              Password
+            </label>
+            <input
+              type="password"
+              name="password"
+              id="password"
+              placeholder="abcd@123"
+              value={password}
+              onChange={(e) => handleInputChange("password", e.target.value)}
+              onBlur={() => handleInputBlur("password", password)}
+              className={`${passwordBorder} placeholder:text-sm placeholder:font-normal bg-[#f1f1f1] text-gray outline-none px-5 py-2 rounded-xl border`}
+            />
+            {passwordError && (
+              <span className="text-red-500 text-sm mt-1 w-[95%] max-w-[95%]">
+                {passwordError}
+              </span>
+            )}
+          </div>
+          <div className="flex mt-4 justify-between items-center">
             <button
               type="submit"
               disabled={!isFormValid}
-              className={`px-8 py-4 mt-4 text-sm w-fit shadow-xl text-[#f1f1f1] rounded-3xl font-semibold ${
-                isFormValid
-                  ? "bg-dark"
-                  : "bg-gray"
+              className={`px-8 py-4 text-sm w-fit shadow-xl text-[#f1f1f1] rounded-full font-semibold ${
+                isFormValid ? "bg-dark" : "bg-gray"
               }`}
             >
               Login
             </button>
-          </form>
-          {loginError === "Email not verified!" ? (
-            <div className="flex flex-col md:gap-1 items-center justify-center">
-              <span className="text-red-500 text-sm font-semibold">
-                Email not Verified!
-              </span>
-              <span className="md:flex-row md:gap-1 items-center flex flex-col text-sm font-medium">
-                Didn't receive a verification link?
-                <div>
-                  <button
-                    onClick={handleEmailVerification}
-                    className="font-semibold hoverEffect2"
-                  >
-                    Click here
-                  </button>{" "}
-                  to resend.
-                </div>
-              </span>
-            </div>
-          ) : (
-            <span className="md:flex-row md:gap-1 items-center flex flex-col text-sm font-semibold">
-              Already have account?
-              <Link href={"/signup"} className="font-bold hoverEffect2">
-                SignUp
-              </Link>
+          </div>
+        </form>
+        {loginError === "Email not verified!" ? (
+          <div className="flex flex-col md:gap-1 items-center justify-center">
+            <span className="text-red-500 text-sm font-semibold">
+              Email not Verified!
             </span>
-          )}
-        </div>
-      </section>
-    );
-
+            <span className="md:flex-row md:gap-1 items-center flex flex-col text-sm font-medium">
+              Didn't receive a verification link?
+              <div>
+                <button
+                  onClick={handleEmailVerification}
+                  className="font-semibold hoverEffect2"
+                >
+                  Click here
+                </button>{" "}
+                to resend.
+              </div>
+            </span>
+          </div>
+        ) : (
+          <span className="md:flex-row md:gap-1 items-center flex flex-col text-sm font-semibold">
+            Already have account?
+            <Link href={"/signup"} className="font-bold hoverEffect2">
+              SignUp
+            </Link>
+          </span>
+        )}
+      </div>
+      <button
+        type="button"
+        onClick={googleSignIn}
+        className={`px-8 py-4 border flex gap-2 border-slate-200 rounded-full text-gray hover:border-slate-300 hover:text-dark transition duration-150`}
+      >
+        <Image
+          src="https://www.svgrepo.com/show/475656/google-color.svg"
+          width={24}
+          height={24}
+          loading="lazy"
+          alt="google logo"
+        />
+        <span>Login with Google</span>
+      </button>
+    </section>
+  );
 };
 
 export default Login;

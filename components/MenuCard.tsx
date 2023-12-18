@@ -1,6 +1,6 @@
 "use client";
 import { addMealToDBCart } from "@/lib/actions/user.actions";
-import { addMealToLocalStorage } from "@/lib/utils";
+import { addMealToLocalStorage } from "@/lib/actions/localStorage.action";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import React from "react";
@@ -19,14 +19,14 @@ const MenuCard = ({ title, description, price, imageUrl, id }: mealCardProps) =>
     if (status !== "loading") {
       if(status === 'authenticated' && session.user) {
         try{
-          addMealToDBCart(id, '/cart');
+          addMealToDBCart(id);
         }catch(err:any){
           toast.error(err.message);
         }
       }
       else{
         try{
-          addMealToLocalStorage(id, '/cart');
+          addMealToLocalStorage(id);
         }catch(err:any){
           toast.error(err.message);
         }
