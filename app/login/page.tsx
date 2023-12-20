@@ -116,23 +116,7 @@ const Login = () => {
     }
   };
   const googleSignIn = async () => {
-    try {
-      const res = await signIn("google", {
-        redirect: false,
-      });
-
-      if (!res?.error) {
-        if (callbackUrl && callbackUrl !== "/signup") {
-          router.push(callbackUrl);
-        } else {
-          router.push("/menu");
-        }
-      } else {
-        toast.error(res.error);
-      }
-    } catch (err: any) {
-      console.error(err);
-    }
+    signIn('google');
   };
 
   const handleEmailVerification = async () => {

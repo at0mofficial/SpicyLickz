@@ -8,6 +8,7 @@ import { generateVerificationCode, hashPassword } from "../utils";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import Meal from "../models/meal.model";
 import { revalidatePath } from "next/cache";
+import { cookies } from 'next/headers';
 
 interface Meal {
   _id: string;
@@ -178,56 +179,27 @@ export async function fetchUserAddress(): Promise<UserAddress> {
     }
   });
 }
-export async function fetchUserCart(): Promise<CartItem[]> {
+
+export async function updateUserAddress(newAddress: UserAddress): Promise<UserAddress> {
   return new Promise(async (resolve, reject) => {
     try {
       const session = await getServerSession(authOptions);
       const userId = session?.user.id;
       await connectToDB();
-      const user = await User.findById(userId).populate({
-        path: "cart.meal",
-        model: Meal,
-        select: ["_id", "title", "description", "price", "imageUrl"],
-      });
 
-      if (!user) {
-        console.error("Error fetching user cart: User not found!");
-        reject(new Error("Error getting user Cart!"));
-        return;
-      }
-
-      resolve(user.cart);
-    } catch (err: any) {
-      console.error("Error fetching user cart:", err);
-      reject(err.message);
-    }
-  });
-}
-
-export async function addMealToDBCart(mealId: string): Promise<void> {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const session = await getServerSession(authOptions);
-      const userId = session?.user.id;
-      await connectToDB();
       const user = await User.findById(userId);
-
       if (!user) {
-        console.error("Error adding meal to cart: User not found!");
-        reject(new Error("Error!"));
+        console.error("Error updating user address: User not found!");
+        reject(new Error("Error updating user address!"));
         return;
       }
 
-      const existingCartItemIndex = user.cart.findIndex(
-        (item: { meal: string; quantity: number }) =>
-          item.meal.toString() === mealId
-      );
-
-      if (existingCartItemIndex !== -1) {
-        user.cart[existingCartItemIndex].quantity += 1;
-      } else {
-        user.cart.push({ meal: mealId, quantity: 1 });
-      }
+      user.address = {
+        streetAddress: newAddress.streetAddress,
+        aptNo: newAddress.aptNo,
+        city: newAddress.city,
+        zipCode: newAddress.zipCode,
+      };
 
       try {
         await user.save();
@@ -235,97 +207,218 @@ export async function addMealToDBCart(mealId: string): Promise<void> {
         reject(new Error(err));
         return;
       }
-      console.log("Meal added to the database cart successfully!");
-      revalidatePath("/cart");
-      resolve();
+
+      console.log("User address updated successfully!");
+      resolve(user.address);
     } catch (err: any) {
-      console.error(err);
-      reject(new Error("Error!"));
+      console.error("Error updating user address:", err);
+      reject('Error updating user address!');
     }
   });
 }
 
-export async function increaseDBMealQty(
-  mealId: string,
-  path: string
-): Promise<void> {
+export async function fetchCart(): Promise<CartItem[]> {
   return new Promise(async (resolve, reject) => {
     try {
       const session = await getServerSession(authOptions);
-      const userId = session?.user.id;
       await connectToDB();
-      const user = await User.findById(userId);
+      
+      if (session?.user) {
+        const userId = session?.user.id;
+        const user = await User.findById(userId).populate({
+          path: "cart.meal",
+          model: Meal,
+          select: ["_id", "title", "description", "price", "imageUrl"],
+        });
+        const userCart = user.cart.map((cartItem: any) => ({
+          meal: {
+            _id: cartItem.meal._id.toString(),
+            title: cartItem.meal.title,
+            description: cartItem.meal.description,
+            price: cartItem.meal.price,
+            imageUrl: cartItem.meal.imageUrl,
+          },
+          quantity: cartItem.quantity,
+        }));
 
-      if (!user) {
-        console.error("Error changing Qty: User not found!");
-        reject(new Error("Error!"));
-        return;
+        resolve(userCart)
       }
 
-      const existingCartItemIndex = user.cart.findIndex(
-        (item: { meal: string; quantity: number }) =>
-          item.meal.toString() === mealId
-      );
+      else {
+        const cookieStore = cookies();
+        let localCart: {meal:string, quantity:number}[] = []
+        try {
+          localCart = JSON.parse(cookieStore.get('cart')?.value ?? '[]')
+        } catch (err: any) {
+          console.error("Failed to fetch local cart")
+        }
 
-      if (existingCartItemIndex !== -1) {
-        user.cart[existingCartItemIndex].quantity += 1;
+        const result: CartItem[] = [];
+        for (let i = 0; i < localCart.length; i++) {
+          try {
+            const meal = await Meal.findById(localCart[i].meal.toString());
+            result.push({meal: meal, quantity: localCart[i].quantity})
+          } catch (err: any) {
+            console.error(`Failed to fetch meal ${localCart[i].meal.toString()}`)
+          }
+        }
+        const userCart = result.map((cartItem: any) => ({
+          meal: {
+            _id: cartItem.meal._id.toString(),
+            title: cartItem.meal.title,
+            description: cartItem.meal.description,
+            price: cartItem.meal.price,
+            imageUrl: cartItem.meal.imageUrl,
+          },
+          quantity: cartItem.quantity,
+        }));
+
+        resolve(userCart);
+      }
+    } catch (err: any) {
+      console.error(err);
+      reject(new Error ('Error fetching Cart!'));
+    }
+  })
+}
+
+export async function addMealToCart(mealId: string): Promise<void> {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const session = await getServerSession(authOptions);
+
+      if (session?.user) {
+        const userId = session?.user.id;
+        await connectToDB();
+        const user = await User.findById(userId);
+
+        const existingCartItemIndex = user.cart.findIndex(
+          (item: { meal: string; quantity: number }) =>
+            item.meal.toString() === mealId
+        );
+
+        if (existingCartItemIndex !== -1) {
+          user.cart[existingCartItemIndex].quantity += 1;
+        } else {
+          user.cart.push({ meal: mealId, quantity: 1 });
+        }
+
         try {
           await user.save();
         } catch (err: any) {
           reject(new Error(err));
           return;
         }
-        console.log("Increased meal Qty!");
-        revalidatePath(path);
-        resolve();
-        return;
-      } else {
-        console.error("Meal not found in the database cart.");
-        reject(new Error("Meal not found!"));
       }
+
+      else {
+        const cookieStore = cookies();
+        let localCart: {meal:string, quantity:number}[] = []
+        try {
+          localCart = JSON.parse(cookieStore.get('cart')?.value ?? '[]')
+        } catch (err: any) {
+          console.log("ERROR: Failed to fetch local cart")
+        }
+
+        const mealIdx = localCart.findIndex((item: { meal: string, quantity: number }) => item.meal.toString() === mealId)
+        if (mealIdx !== -1) {
+          localCart[mealIdx].quantity += 1;
+        }
+        else {
+          localCart.push({ meal: mealId, quantity: 1 })
+        }
+        cookieStore.set('cart', JSON.stringify(localCart), { maxAge: 3600*24*90 })
+      }
+
+      console.log("Meal added to the database cart successfully!");
+      revalidatePath("/cart");
+      resolve();
+      
     } catch (err: any) {
       console.error(err);
-      throw new Error(err.message);
+      reject(new Error("Error!"));
     }
-  });
+  })
 }
-export async function decreaseDBMealQty(
-  mealId: string,
-  path: string
-): Promise<void> {
+
+export async function decreaseMealQty(mealId: string): Promise<void> {
   return new Promise(async (resolve, reject) => {
     try {
       const session = await getServerSession(authOptions);
-      const userId = session?.user.id;
-      await connectToDB();
-      const user = await User.findById(userId);
 
-      if (!user) {
-        console.error("Error changing Qty: User not found!");
-        reject(new Error("Error!"));
-        return;
+      if (session?.user) {
+        const userId = session?.user.id;
+        await connectToDB();
+        const user = await User.findById(userId);
+
+        const existingCartItemIndex = user.cart.findIndex(
+          (item: { meal: string; quantity: number }) =>
+            item.meal.toString() === mealId
+        );
+
+        if (existingCartItemIndex !== -1) {
+          if (user.cart[existingCartItemIndex].quantity === 1){
+            await removeMealFromCart(mealId)
+          }
+          else {
+            user.cart[existingCartItemIndex].quantity -= 1;
+            try {
+              await user.save();
+            } catch (err: any) {
+              reject(new Error(err));
+              return;
+            }
+          }
+        }
+
       }
 
-      const existingCartItemIndex = user.cart.findIndex(
-        (item: { meal: string; quantity: number }) =>
-          item.meal.toString() === mealId
-      );
+      else {
+        const cookieStore = cookies();
+        let localCart: {meal:string, quantity:number}[] = []
+        try {
+          localCart = JSON.parse(cookieStore.get('cart')?.value ?? '[]')
+        } catch (err: any) {
+          console.log("ERROR: Failed to fetch local cart")
+        }
 
-      if (existingCartItemIndex !== -1) {
-        const currentQuantity = user.cart[existingCartItemIndex].quantity;
-        if (currentQuantity > 1) {
-          user.cart[existingCartItemIndex].quantity -= 1;
-          try {
-            await user.save();
-          } catch (err: any) {
-            reject(new Error(err));
-            return;
+        const mealIdx = localCart.findIndex((item: { meal: string, quantity: number }) => item.meal.toString() === mealId)
+        if (mealIdx !== -1) {
+          if (localCart[mealIdx].quantity === 1) {
+            await removeMealFromCart(mealId)
           }
-          console.log("Decreased meal Qty!");
-          revalidatePath(path);
-          resolve();
-          return;
-        } else {
+          else {
+            localCart[mealIdx].quantity -= 1;
+            cookieStore.set('cart', JSON.stringify(localCart), { maxAge: 3600*24*90 })
+          }
+        }
+      }
+
+      console.log("Decreased meal Qty!");
+      revalidatePath("/cart");
+      resolve();
+    } catch (err: any) {
+      console.error(err);
+      reject(new Error("Error!"));
+    }
+  })
+}
+
+export async function removeMealFromCart(mealId: string): Promise<void> {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const session = await getServerSession(authOptions);
+      if (session?.user) {
+        const userId = session?.user.id;
+        await connectToDB();
+        const user = await User.findById(userId);
+
+        const existingCartItemIndex = user.cart.findIndex(
+          (item: { meal: string; quantity: number }) =>
+            item.meal.toString() === mealId
+        );
+  
+        if (existingCartItemIndex !== -1) {
           user.cart.splice(existingCartItemIndex, 1);
           try {
             await user.save();
@@ -333,64 +426,34 @@ export async function decreaseDBMealQty(
             reject(new Error(err));
             return;
           }
-          console.log("Item Removed!");
-          revalidatePath(path);
-          resolve();
-          return;
+        } 
+        else {
+          console.error("Item not found in the database cart.");
+          reject(new Error("Item not found!"));
         }
-      } else {
-        console.error("Meal not found in the database cart.");
-        reject(new Error("Meal not found!"));
-      }
-    } catch (err: any) {
-      console.error(err);
-      throw new Error(err.message);
-    }
-  });
-}
-
-export async function deleteItemFromDBCart(
-  mealId: string,
-  path: string
-): Promise<void> {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const session = await getServerSession(authOptions);
-      const userId = session?.user.id;
-      await connectToDB();
-      const user = await User.findById(userId);
-
-      if (!user) {
-        console.error("Error deleting item from cart: User not found!");
-        reject(new Error("Error!"));
-        return;
       }
 
-      const existingCartItemIndex = user.cart.findIndex(
-        (item: { meal: string; quantity: number }) =>
-          item.meal.toString() === mealId
-      );
-
-      if (existingCartItemIndex !== -1) {
-        user.cart.splice(existingCartItemIndex, 1); // Remove the item from the cart array
+      else {
+        const cookieStore = cookies();
+        let localCart: {meal:string, quantity:number}[] = []
         try {
-          await user.save();
+          localCart = JSON.parse(cookieStore.get('cart')?.value ?? '[]')
         } catch (err: any) {
-          reject(new Error(err));
-          return;
+          console.log("ERROR: Failed to fetch local cart")
         }
-        console.log("Item removed from the database cart successfully!");
-        revalidatePath(path);
-        resolve();
-      } else {
-        console.error("Item not found in the database cart.");
-        reject(new Error("Item not found!"));
+
+        localCart = localCart.filter((item: { meal: string, quantity: number }) => item.meal.toString() !== mealId)
+        cookieStore.set('cart', JSON.stringify(localCart), { maxAge: 3600*24*90 })
       }
+
+      console.log("Item Removed!");
+      revalidatePath("/cart");
+      resolve();
     } catch (err: any) {
       console.error(err);
       reject(new Error("Error!"));
     }
-  });
+  })
 }
 
 export async function mergeLocalAndDBCart(
@@ -438,44 +501,6 @@ export async function mergeLocalAndDBCart(
       console.error(
         "Merge carts encountered an error, but the user login will proceed."
       );
-    }
-  });
-}
-
-export async function updateUserAddress(newAddress: UserAddress): Promise<void> {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const session = await getServerSession(authOptions);
-      const userId = session?.user.id;
-      await connectToDB();
-
-      const user = await User.findById(userId);
-      if (!user) {
-        console.error("Error updating user address: User not found!");
-        reject(new Error("Error updating user address!"));
-        return;
-      }
-
-      user.address = {
-        streetAddress: newAddress.streetAddress,
-        aptNo: newAddress.aptNo,
-        city: newAddress.city,
-        zipCode: newAddress.zipCode,
-      };
-
-      try {
-        await user.save();
-      } catch (err: any) {
-        reject(new Error(err));
-        return;
-      }
-
-      console.log("User address updated successfully!");
-      revalidatePath('/userProfile');
-      resolve();
-    } catch (err: any) {
-      console.error("Error updating user address:", err);
-      reject('Error updating user address!');
     }
   });
 }

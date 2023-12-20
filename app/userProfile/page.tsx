@@ -42,7 +42,7 @@ const UserProfile = () => {
   const isFormValid =
     !streetAddressError && !aptNoError && !cityError && !zipCodeError;
 
-  const isAddressChanged =
+  let isAddressChanged =
     streetAddress !== initialAddress.streetAddress ||
     aptNo !== initialAddress.aptNo ||
     city !== initialAddress.city ||
@@ -139,7 +139,7 @@ const UserProfile = () => {
           setZipCodeError("ZipCode can't be empty");
           result = false;
         } else if (!regx.test(value.trim())) {
-          setZipCodeError(`Enter a valid zipCode, e.g., (A1A A1A)`);
+          setZipCodeError(`Enter a valid zipCode, e.g., (A1A 1A1)`);
           result = false;
         } else {
           setZipCodeError("");
@@ -170,15 +170,11 @@ const UserProfile = () => {
   };
 
   function convertZipCode(zipCode: string) {
-    const regex = /^([A-Z]\d[A-Z])(\d[A-Z]\d)$/;
-    const match = zipCode.match(regex);
+    const normalizedZipCode = zipCode.replace(/\s/g, "").toUpperCase();
 
-    if (match) {
-      const newZipCode = `${match[1]} ${match[2]}`;
-      return newZipCode;
-    } else {
-      return zipCode;
-    }
+    const formattedZipCode = normalizedZipCode.replace(/^(.{3})(.*)$/, "$1 $2");
+
+    return formattedZipCode;
   }
 
   const handleSaveAddress = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -205,11 +201,14 @@ const UserProfile = () => {
           zipCode: newZipCode,
         };
 
-        // Call the update function
-        await updateUserAddress(updatedAddress);
+        const newAddress = await updateUserAddress(updatedAddress);
 
-        // Update the initialAddress for future comparisons
-        setInitialAddress(updatedAddress);
+        setInitialAddress(newAddress);
+        
+        setStreetAddress(newAddress.streetAddress);
+        setAptNo(newAddress.aptNo);
+        setCity(newAddress.city);
+        setZipCode(newAddress.zipCode);
 
         toast.success("Address saved successfully!");
       } catch (error) {
@@ -311,7 +310,6 @@ const UserProfile = () => {
                   selected={city}
                   onChange={(value) => {
                     handleInputChange("city", value);
-                    handleInputBlur("city", city);
                   }}
                   cityBorder={`${
                     cityError ? "border border-red-500" : "border-none"

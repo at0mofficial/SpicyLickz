@@ -1,9 +1,6 @@
 "use client";
-import { addMealToDBCart } from "@/lib/actions/user.actions";
-import { addMealToLocalStorage } from "@/lib/actions/localStorage.action";
-import { useSession } from "next-auth/react";
+import { addMealToCart } from "@/lib/actions/user.actions";
 import Image from "next/image";
-import React from "react";
 import toast from "react-hot-toast";
 
 interface mealCardProps {
@@ -13,24 +10,18 @@ interface mealCardProps {
   price: string;
   imageUrl: string;
 }
-const MenuCard = ({ title, description, price, imageUrl, id }: mealCardProps) => {
-  const { data: session, status } = useSession();
-  const handleAddToCart = () => {
-    if (status !== "loading") {
-      if(status === 'authenticated' && session.user) {
-        try{
-          addMealToDBCart(id);
-        }catch(err:any){
-          toast.error(err.message);
-        }
-      }
-      else{
-        try{
-          addMealToLocalStorage(id);
-        }catch(err:any){
-          toast.error(err.message);
-        }
-      }
+const MenuCard = ({
+  title,
+  description,
+  price,
+  imageUrl,
+  id,
+}: mealCardProps) => {
+  const handleAddToCart = async () => {
+    try {
+      await addMealToCart(id);
+    } catch (err: any) {
+      toast.error(err.message);
     }
   };
 

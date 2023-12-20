@@ -1,8 +1,10 @@
 "use client";
-import { decreaseDBMealQty, deleteItemFromDBCart, increaseDBMealQty } from "@/lib/actions/user.actions";
-import { decreaseLocalMealQty, deleteItemFromLocalStorage, increaseLocalMealQty } from "@/lib/actions/localStorage.action";
+import {
+  addMealToCart,
+  decreaseMealQty,
+  removeMealFromCart,
+} from "@/lib/actions/user.actions";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
 import React, { useState } from "react";
 import toast from "react-hot-toast";
 
@@ -13,7 +15,6 @@ interface cartCardProps {
   price: number;
   imageUrl: string;
   quantity: number;
-  isUserLoggedIn: boolean;
 }
 const CartCard = ({
   title,
@@ -22,51 +23,38 @@ const CartCard = ({
   imageUrl,
   id,
   quantity,
-  isUserLoggedIn,
 }: cartCardProps) => {
-  const path = usePathname();
+
   const [qty, setQty] = useState<number>(quantity);
+  
   const handleIncrease = () => {
-    if(isUserLoggedIn) {
-      try {
-        increaseDBMealQty(id, path);
-        setQty((prevQty) => prevQty + 1);
-      } catch (err:any) {
-        toast.error(err.message);
-      }
-    }else{
-      increaseLocalMealQty(id, path);
+    try {
+      addMealToCart(id);
       setQty((prevQty) => prevQty + 1);
+    } catch (err: any) {
+      toast.error(err.message);
     }
   };
+
   const handleDecrease = () => {
-    if(isUserLoggedIn) {
-      try {
-        decreaseDBMealQty(id, path);
-        if(qty>1) {
-          setQty((prevQty) => prevQty - 1);
-        }
-      } catch (err:any) {
-        toast.error(err.message);
-      }
-    }else{
-      decreaseLocalMealQty(id, path);
-      if(qty>1) {
+    try {
+      decreaseMealQty(id);
+      if (qty > 1) {
         setQty((prevQty) => prevQty - 1);
       }
+    } catch (err: any) {
+      toast.error(err.message);
     }
   };
+
   const handleDelete = () => {
-    if(isUserLoggedIn) {
-      try {
-        deleteItemFromDBCart(id, path);
-      } catch (err:any) {
-        toast.error(err.message);
-      }
-    }else{
-      deleteItemFromLocalStorage(id, path);
+    try {
+      removeMealFromCart(id);
+    } catch (err: any) {
+      toast.error(err.message);
     }
   };
+
   return (
     <div className="flex md:flex-row flex-row-reverse lg:w-[90%] items-start lg:max-w-[90%] w-full gap-8">
       <div className="md:h-[150px] max-md:mt-2 md:w-[260px] lg:h-[120px] lg:w-[150px] xss:h-[80px] xss:w-[80px] xss:block hidden rounded-sm relative shrink-0">
