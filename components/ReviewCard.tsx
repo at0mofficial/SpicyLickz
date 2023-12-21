@@ -34,7 +34,7 @@ const ReviewCard = ({
         </div>
         <Rating rating={rating} />
         <div className="uppercase text-base font-semibold mt-1">{reviewTitle}</div>
-        <div className="text-sm font-medium mt-2">p{reviewDescription}</div>
+        <div className="text-sm font-medium mt-2">{reviewDescription}</div>
       </div>
     </div>
   );
