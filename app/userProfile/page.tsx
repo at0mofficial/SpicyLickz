@@ -9,13 +9,28 @@ import {
 } from "@/lib/actions/user.actions";
 import toast from "react-hot-toast";
 import CityCombobox from "@/components/CityCombobox";
+import { useUploadThing } from "@/lib/uploadthing";
+import { useRef } from "react";
 
 const UserProfile = () => {
-  const { data: session, status } = useSession();
+  const { startUpload } = useUploadThing("profileImage", {
+    onUploadBegin: ()=>{
+      setLoading(true);
+    },
+    onClientUploadComplete: () => {
+      toast.success("Profile saved");
+    },
+    onUploadError: () => {
+      setLoading(false);
+      toast.error('Error uploading image');
+    },
+  });
+  const { data: session, status, update } = useSession();
   const userImage = session?.user?.image || "/no-user.jpg";
   const userEmail = session?.user?.email || "";
   const userName = session?.user?.name || "";
   const userProvince = "Ontario";
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [loading, setLoading] = useState(true);
 
@@ -73,6 +88,12 @@ const UserProfile = () => {
 
     fetchAddress();
   }, []);
+
+  const updateSession = async (img:string)=>{
+    await update({
+      image: img
+      })
+    }
 
   const handleInputChange = (field: string, value: string) => {
     switch (field) {
@@ -204,7 +225,7 @@ const UserProfile = () => {
         const newAddress = await updateUserAddress(updatedAddress);
 
         setInitialAddress(newAddress);
-        
+
         setStreetAddress(newAddress.streetAddress);
         setAptNo(newAddress.aptNo);
         setCity(newAddress.city);
@@ -231,13 +252,45 @@ const UserProfile = () => {
     <main className="flex justify-center mt-[60px] mb-[100px]">
       <div className="flex flex-col gap-[60px] lg:w-[800px] lg:rounded-md lg:shadow-2xl w-full md:px-[40px] lg:px-[100px] md:pt-[60px] md:pb-[100px]">
         <div className="flex flex-col items-center gap-3 justify-center">
-          <Image
-            src={userImage}
-            alt="profile picture"
-            width={140}
-            height={140}
-            className="shrink-0 rounded-full"
+          <input
+            type="file"
+            onChange={async (e) => {
+              const file = e.target.files?.[0];
+              if (file) {
+                try {
+                  const res = await startUpload([file]);
+                  if(res && res[0].serverData){
+                    await updateSession(res[0].serverData);
+                    setLoading(false);
+                  }
+                  console.log(res);
+                  
+                } catch (err: any) {
+                  toast.error(err.message);
+                }
+              }
+            }}
+            ref={fileInputRef}
+            className="hidden"
           />
+          <div
+            onClick={() => {
+              fileInputRef.current?.click();
+            }}
+            className="relative group cursor-pointer"
+          >
+            <Image
+              src={userImage}
+              alt="profile picture"
+              width={140}
+              height={140}
+              className="shrink-0 aspect-square rounded-full"
+            />
+            <div className="absolute flex opacity-0 inset-0 group-hover:opacity-100 items-center justify-center bg-black bg-opacity-40 transition-all duration-200 ease-in rounded-full">
+              <span className="text-white text-sm">Change Photo</span>
+            </div>
+          </div>
+
           <div className="text-center">
             <h1 className="text-2xl text-dark font-semibold">{userName}</h1>
             <p className="text-sm text-gray">{userEmail}</p>

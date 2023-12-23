@@ -21,7 +21,7 @@ export default function UserDisplay({ userImage }: { userImage: string }) {
           alt="name"
           width={50}
           height={50}
-          className="rounded-full"
+          className="rounded-full aspect-square shrink-0"
         />
         <Menu as="div" className="relative inline-block">
           <Menu.Button>

@@ -98,11 +98,15 @@ export const authOptions: NextAuthOptions = {
       // console.log("<-----Session Session----->", session);
       // console.log("<-----Session Token----->", token);
       session.user.id = token.id;
+      // session.user.image = token.picture;
       return session;
     },
-    jwt: ({ token, user }) => {
+    jwt: ({ token, user, trigger, session }) => {
       // console.log("<-----JWT User----->", user);
       // console.log("<-----JWT Token----->", token);
+      if(trigger === 'update' && session?.image) {
+        token.picture = session.image
+      }
       if (user) {
         return {
           ...token,
