@@ -8,7 +8,10 @@ import { generateVerificationCode, hashPassword } from "../utils";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import Meal from "../models/meal.model";
 import { revalidatePath } from "next/cache";
-import { cookies } from 'next/headers';
+import { cookies } from "next/headers";
+import Stripe from "stripe";
+import { redirect } from "next/navigation";
+import { payment_id } from "@/constants";
 
 interface Meal {
   _id: string;
@@ -28,6 +31,10 @@ interface UserAddress {
   city: string;
   zipCode: string;
 }
+type LineItem = {
+  price: string;
+  quantity: number;
+};
 
 export async function registerUser({
   email,
@@ -46,7 +53,7 @@ export async function registerUser({
         reject(new Error("Account already registered. Please login."));
         return;
       }
-      if (!password){
+      if (!password) {
         reject(new Error("Password is required"));
         return;
       }
@@ -172,7 +179,7 @@ export async function fetchUserAddress(): Promise<UserAddress> {
       const city = user.address.city;
       const zipCode = user.address.zipCode;
 
-      resolve({streetAddress, city, zipCode, aptNo});
+      resolve({ streetAddress, city, zipCode, aptNo });
     } catch (err: any) {
       console.error("Error fetching user cart:", err);
       reject(err.message);
@@ -180,7 +187,9 @@ export async function fetchUserAddress(): Promise<UserAddress> {
   });
 }
 
-export async function updateUserAddress(newAddress: UserAddress): Promise<UserAddress> {
+export async function updateUserAddress(
+  newAddress: UserAddress
+): Promise<UserAddress> {
   return new Promise(async (resolve, reject) => {
     try {
       const session = await getServerSession(authOptions);
@@ -212,7 +221,7 @@ export async function updateUserAddress(newAddress: UserAddress): Promise<UserAd
       resolve(user.address);
     } catch (err: any) {
       console.error("Error updating user address:", err);
-      reject('Error updating user address!');
+      reject("Error updating user address!");
     }
   });
 }
@@ -222,7 +231,7 @@ export async function fetchCart(): Promise<CartItem[]> {
     try {
       const session = await getServerSession(authOptions);
       await connectToDB();
-      
+
       if (session?.user) {
         const userId = session?.user.id;
         const user = await User.findById(userId).populate({
@@ -241,25 +250,25 @@ export async function fetchCart(): Promise<CartItem[]> {
           quantity: cartItem.quantity,
         }));
 
-        resolve(userCart)
-      }
-
-      else {
+        resolve(userCart);
+      } else {
         const cookieStore = cookies();
-        let localCart: {meal:string, quantity:number}[] = []
+        let localCart: { meal: string; quantity: number }[] = [];
         try {
-          localCart = JSON.parse(cookieStore.get('cart')?.value ?? '[]')
+          localCart = JSON.parse(cookieStore.get("cart")?.value ?? "[]");
         } catch (err: any) {
-          console.error("Failed to fetch local cart")
+          console.error("Failed to fetch local cart");
         }
 
         const result: CartItem[] = [];
         for (let i = 0; i < localCart.length; i++) {
           try {
             const meal = await Meal.findById(localCart[i].meal.toString());
-            result.push({meal: meal, quantity: localCart[i].quantity})
+            result.push({ meal: meal, quantity: localCart[i].quantity });
           } catch (err: any) {
-            console.error(`Failed to fetch meal ${localCart[i].meal.toString()}`)
+            console.error(
+              `Failed to fetch meal ${localCart[i].meal.toString()}`
+            );
           }
         }
         const userCart = result.map((cartItem: any) => ({
@@ -277,9 +286,9 @@ export async function fetchCart(): Promise<CartItem[]> {
       }
     } catch (err: any) {
       console.error(err);
-      reject(new Error ('Error fetching Cart!'));
+      reject(new Error("Error fetching Cart!"));
     }
-  })
+  });
 }
 
 export async function addMealToCart(mealId: string): Promise<void> {
@@ -309,36 +318,37 @@ export async function addMealToCart(mealId: string): Promise<void> {
           reject(new Error(err));
           return;
         }
-      }
-
-      else {
+      } else {
         const cookieStore = cookies();
-        let localCart: {meal:string, quantity:number}[] = []
+        let localCart: { meal: string; quantity: number }[] = [];
         try {
-          localCart = JSON.parse(cookieStore.get('cart')?.value ?? '[]')
+          localCart = JSON.parse(cookieStore.get("cart")?.value ?? "[]");
         } catch (err: any) {
-          console.log("ERROR: Failed to fetch local cart")
+          console.log("ERROR: Failed to fetch local cart");
         }
 
-        const mealIdx = localCart.findIndex((item: { meal: string, quantity: number }) => item.meal.toString() === mealId)
+        const mealIdx = localCart.findIndex(
+          (item: { meal: string; quantity: number }) =>
+            item.meal.toString() === mealId
+        );
         if (mealIdx !== -1) {
           localCart[mealIdx].quantity += 1;
+        } else {
+          localCart.push({ meal: mealId, quantity: 1 });
         }
-        else {
-          localCart.push({ meal: mealId, quantity: 1 })
-        }
-        cookieStore.set('cart', JSON.stringify(localCart), { maxAge: 3600*24*90 })
+        cookieStore.set("cart", JSON.stringify(localCart), {
+          maxAge: 3600 * 24 * 90,
+        });
       }
 
       console.log("Meal added to the database cart successfully!");
       revalidatePath("/cart");
       resolve();
-      
     } catch (err: any) {
       console.error(err);
       reject(new Error("Error!"));
     }
-  })
+  });
 }
 
 export async function decreaseMealQty(mealId: string): Promise<void> {
@@ -357,10 +367,9 @@ export async function decreaseMealQty(mealId: string): Promise<void> {
         );
 
         if (existingCartItemIndex !== -1) {
-          if (user.cart[existingCartItemIndex].quantity === 1){
-            await removeMealFromCart(mealId)
-          }
-          else {
+          if (user.cart[existingCartItemIndex].quantity === 1) {
+            await removeMealFromCart(mealId);
+          } else {
             user.cart[existingCartItemIndex].quantity -= 1;
             try {
               await user.save();
@@ -370,26 +379,27 @@ export async function decreaseMealQty(mealId: string): Promise<void> {
             }
           }
         }
-
-      }
-
-      else {
+      } else {
         const cookieStore = cookies();
-        let localCart: {meal:string, quantity:number}[] = []
+        let localCart: { meal: string; quantity: number }[] = [];
         try {
-          localCart = JSON.parse(cookieStore.get('cart')?.value ?? '[]')
+          localCart = JSON.parse(cookieStore.get("cart")?.value ?? "[]");
         } catch (err: any) {
-          console.log("ERROR: Failed to fetch local cart")
+          console.log("ERROR: Failed to fetch local cart");
         }
 
-        const mealIdx = localCart.findIndex((item: { meal: string, quantity: number }) => item.meal.toString() === mealId)
+        const mealIdx = localCart.findIndex(
+          (item: { meal: string; quantity: number }) =>
+            item.meal.toString() === mealId
+        );
         if (mealIdx !== -1) {
           if (localCart[mealIdx].quantity === 1) {
-            await removeMealFromCart(mealId)
-          }
-          else {
+            await removeMealFromCart(mealId);
+          } else {
             localCart[mealIdx].quantity -= 1;
-            cookieStore.set('cart', JSON.stringify(localCart), { maxAge: 3600*24*90 })
+            cookieStore.set("cart", JSON.stringify(localCart), {
+              maxAge: 3600 * 24 * 90,
+            });
           }
         }
       }
@@ -401,7 +411,7 @@ export async function decreaseMealQty(mealId: string): Promise<void> {
       console.error(err);
       reject(new Error("Error!"));
     }
-  })
+  });
 }
 
 export async function removeMealFromCart(mealId: string): Promise<void> {
@@ -417,7 +427,7 @@ export async function removeMealFromCart(mealId: string): Promise<void> {
           (item: { meal: string; quantity: number }) =>
             item.meal.toString() === mealId
         );
-  
+
         if (existingCartItemIndex !== -1) {
           user.cart.splice(existingCartItemIndex, 1);
           try {
@@ -426,24 +436,26 @@ export async function removeMealFromCart(mealId: string): Promise<void> {
             reject(new Error(err));
             return;
           }
-        } 
-        else {
+        } else {
           console.error("Item not found in the database cart.");
           reject(new Error("Item not found!"));
         }
-      }
-
-      else {
+      } else {
         const cookieStore = cookies();
-        let localCart: {meal:string, quantity:number}[] = []
+        let localCart: { meal: string; quantity: number }[] = [];
         try {
-          localCart = JSON.parse(cookieStore.get('cart')?.value ?? '[]')
+          localCart = JSON.parse(cookieStore.get("cart")?.value ?? "[]");
         } catch (err: any) {
-          console.log("ERROR: Failed to fetch local cart")
+          console.log("ERROR: Failed to fetch local cart");
         }
 
-        localCart = localCart.filter((item: { meal: string, quantity: number }) => item.meal.toString() !== mealId)
-        cookieStore.set('cart', JSON.stringify(localCart), { maxAge: 3600*24*90 })
+        localCart = localCart.filter(
+          (item: { meal: string; quantity: number }) =>
+            item.meal.toString() !== mealId
+        );
+        cookieStore.set("cart", JSON.stringify(localCart), {
+          maxAge: 3600 * 24 * 90,
+        });
       }
 
       console.log("Item Removed!");
@@ -453,29 +465,29 @@ export async function removeMealFromCart(mealId: string): Promise<void> {
       console.error(err);
       reject(new Error("Error!"));
     }
-  })
+  });
 }
 
-export async function mergeLocalAndDBCart(
-  localStorageCartString: string
-): Promise<void> {
-  const session = await getServerSession(authOptions);
-  console.log(session);
-  if (!session || !session.user) return;
-  const userEmail = session.user.email as string;
+export async function mergeCarts(id: string): Promise<void> {
   return new Promise(async (resolve, reject) => {
     try {
       await connectToDB();
-      const user = await User.findOne({ email: userEmail });
+      const user = await User.findById(id);
 
       if (!user) {
         console.error("Error merging carts: User not found!");
         return;
       }
 
-      const localCart = JSON.parse(localStorageCartString);
+      const cookieStore = cookies();
+      let localCart: { meal: string; quantity: number }[] = [];
+      try {
+        localCart = JSON.parse(cookieStore.get("cart")?.value ?? "[]");
+      } catch (err: any) {
+        console.log("ERROR: Failed to fetch local cart");
+      }
 
-      localCart.forEach((localCartItem: { meal: string; quantity: number }) => {
+      localCart.forEach((localCartItem) => {
         const existingCartItemIndex = user.cart.findIndex(
           (dbCartItem: { meal: string; quantity: number }) =>
             dbCartItem.meal.toString() === localCartItem.meal.toString()
@@ -494,6 +506,7 @@ export async function mergeLocalAndDBCart(
         reject(new Error(err));
         return;
       }
+      revalidatePath("/cart");
       console.log("Carts merged successfully!");
       resolve();
     } catch (err: any) {
@@ -501,6 +514,89 @@ export async function mergeLocalAndDBCart(
       console.error(
         "Merge carts encountered an error, but the user login will proceed."
       );
+    }
+  });
+}
+export async function resetCart(): Promise<void> {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const session = await getServerSession(authOptions);
+      await connectToDB();
+
+      if (session?.user) {
+        const userId = session?.user.id;
+        await User.updateOne({ _id: userId }, { $set: { cart: [] } });
+        revalidatePath("/cart");
+        resolve();
+      } else {
+        console.error("error resetting cart!");
+      }
+    } catch (err: any) {
+      console.error(err);
+    }
+  });
+}
+export async function checkout(): Promise<string> {
+  return new Promise(async (resolve, reject) => {
+    if (!process.env.STRIPE_SECRET_KEY) {
+      console.error("Missing secret key!");
+      reject(new Error("Internal Error!"));
+    }
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
+    try {
+      const session = await getServerSession(authOptions);
+      await connectToDB();
+
+      if (!session || !session?.user) {
+        redirect("/login");
+      }
+      const userCart = await fetchCart();
+      if (userCart.length === 0) {
+        reject(new Error("Empty Cart!"));
+        return;
+      }
+
+      const lineItems: LineItem[] = userCart.map((cartItem) => {
+        const matchingPaymentItem = payment_id.find(
+          (paymentItem) => paymentItem.title === cartItem.meal.title
+        );
+
+        if (!matchingPaymentItem) {
+          console.error(`No payment_id found for meal: ${cartItem.meal.title}`);
+          reject(new Error("Server Error!"));
+          return { price: "", quantity: cartItem.quantity };
+        }
+
+        return {
+          price: matchingPaymentItem.p_id,
+          quantity: cartItem.quantity,
+        };
+      });
+
+      if (lineItems.some((item) => item.price === "")) {
+        console.error("Payment_id missing!");
+        reject(new Error("Server Error!"));
+        return;
+      }
+
+      const params: Stripe.Checkout.SessionCreateParams = {
+        payment_method_types: ["card"],
+        customer_email: `${session.user.email}`,
+        mode: "payment",
+        line_items: lineItems,
+        success_url: `http://localhost:3000/payment_success/{CHECKOUT_SESSION_ID}`,
+        cancel_url: `http://localhost:3000/payment_failed/{CHECKOUT_SESSION_ID}`,
+      };
+      const checkoutSession: Stripe.Checkout.Session =
+        await stripe.checkout.sessions.create(params);
+      if (checkoutSession && checkoutSession.url) {
+        resolve(checkoutSession.url);
+      } else {
+        reject(new Error("Server Error!"));
+      }
+    } catch (err: any) {
+      console.error(err);
+      reject(err.message);
     }
   });
 }

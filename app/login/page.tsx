@@ -1,5 +1,4 @@
 "use client";
-import { mergeLocalAndDBCart } from "@/lib/actions/user.actions";
 import { resendVerificationEmail } from "@/lib/sendGridMail";
 import { testEmail } from "@/lib/utils";
 import { signIn } from "next-auth/react";
@@ -96,7 +95,6 @@ const Login = () => {
           email,
           password,
         });
-
         if (!res?.error) {
           if (callbackUrl && callbackUrl !== "/signup") {
             router.push(callbackUrl);
@@ -116,7 +114,9 @@ const Login = () => {
     }
   };
   const googleSignIn = async () => {
-    signIn('google');
+    signIn('google',{
+      callbackUrl: callbackUrl || '/menu'
+    });
   };
 
   const handleEmailVerification = async () => {

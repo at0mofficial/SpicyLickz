@@ -28,10 +28,6 @@ const Cart = async () => {
     0
   );
 
-  const taxRate = subTotal > 100 ? 0.05 : 0.1;
-  const taxFee = subTotal * taxRate;
-  const total = subTotal + taxFee;
-
   return (
     <main className="flex-col lg:px-16 md:px-12 px-6 pt-8 pb-20">
       <h2 className="text-[28px] pb-4 font-semibold text-dark">My Cart</h2>
@@ -59,25 +55,14 @@ const Cart = async () => {
             {session && session.user && <AddressCard />}
             <div className="flex flex-col gap-4 mt-7">
               <h3 className="text-xl font-semibold">Order Info</h3>
+              <p className="flex justify-between text-lg font-semibold mt-[-8px] text-dark">
+                Sub Total<span className="">${subTotal.toFixed(2)}</span>
+              </p>
               <div>
-                <p className="flex justify-between text-sm font-medium text-gray">
-                  Subtotal
-                  <span className="text-base font-medium">
-                    <span className="font-semibold text-primary">$</span>
-                    {subTotal.toFixed(2)}
-                  </span>
-                </p>
-                <p className="flex justify-between text-sm font-medium text-gray">
-                  Service & Tax Fee
-                  <span className="text-base font-medium">
-                    <span className="font-semibold text-primary">$</span>
-                    {taxFee.toFixed(2)}
-                  </span>
+                <p className="flex justify-between text-sm italic text-gray">
+                  *Taxes are calculated at checkout
                 </p>
               </div>
-              <p className="flex justify-between text-lg font-semibold mt-[-8px] text-dark">
-                Total<span className="">${total.toFixed(2)}</span>
-              </p>
             </div>
             <PlaceOrder />
           </div>

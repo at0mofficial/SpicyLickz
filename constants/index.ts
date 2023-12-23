@@ -10,7 +10,6 @@ import person2 from "@/public/person2.jpg";
 import person3 from "@/public/person3.jpg";
 import person4 from "@/public/person4.jpg";
 import person5 from "@/public/person5.jpg";
-import mongoose from "mongoose";
 
 export const featureItems = [
   {
@@ -438,5 +437,88 @@ export const ontarioCities = [
   { id: 99, name: 'Whitchurch - Stouffville' },
   { id: 100, name: 'Windsor' },
   { id: 101, name: 'Woodstock' },
+];
+
+export const payment_id = [
+  {
+    title: "Sautéed Ground Pork over Jasmine Rice",
+    p_id: "price_1OQFeDE4gSBdzbVi7QpJUso7",
+  },
+  {
+    title: "French Toast",
+    p_id: "price_1OQFfXE4gSBdzbViWoiik9OA",
+  },
+  {
+    title: "Grilled Shrimp",
+    p_id: "price_1OQFgaE4gSBdzbViWTrP3ahR",
+  },
+  {
+    title: "Chilly Chicken",
+    p_id: "price_1OQFhAE4gSBdzbVi7nb3dqnl",
+  },
+  {
+    title: "Spicy Spaghetti",
+    p_id: "price_1OQFiyE4gSBdzbVi4SKB57ZI",
+  },
+  {
+    title: "Black Bean Tostadas",
+    p_id: "price_1OQFjXE4gSBdzbViNV0EnCBF",
+  },
+  {
+    title: "Arroz Con Pollo",
+    p_id: "price_1OQFkZE4gSBdzbViPYXj7JFg",
+  },
+  {
+    title: "Chicken Alfredo",
+    p_id: "price_1OQFlEE4gSBdzbViiO3vCQUs",
+  },
+  {
+    title: "Mango Salsa Salmon",
+    p_id: "price_1OQFm6E4gSBdzbViT4NVQFsi",
+  },
+  {
+    title: "Caprese Salad",
+    p_id: "price_1OQFnJE4gSBdzbVij1QaVpVE",
+  },
+  {
+    title: "Vegetable Stir-Fry",
+    p_id: "price_1OQFoOE4gSBdzbVij9Qc5Gqf",
+  },
+  {
+    title: "Beef Tacos",
+    p_id: "price_1OQFpDE4gSBdzbViUMr6Ag3D",
+  },
+  {
+    title: "Penne alla Vodka",
+    p_id: "price_1OQFpvE4gSBdzbViVanp4pAv",
+  },
+  {
+    title: "Lobster Bisque",
+    p_id: "price_1OQFqmE4gSBdzbVibv6gJLTw",
+  },
+  {
+    title: "Mushroom Risotto",
+    p_id: "price_1OQFrTE4gSBdzbViC129hd4Q",
+  },
+  {
+    title: "Eggplant Parmesan",
+    p_id: "price_1OQFs5E4gSBdzbVi6t9EqLrO",
+  },
+  {
+    title: "Breakfast Burrito",
+    p_id: "price_1OQFspE4gSBdzbViwR8A3vak",
+  },
+  {
+    title: "Pancakes and Bacon",
+    p_id: "price_1OQFtWE4gSBdzbViLHyphdsQ",
+  },
+  {
+    title: "Veggie Omelette",
+    p_id: "price_1OQFu6E4gSBdzbVivxa9cAkY",
+  },
+  {
+    title: "Greek Yogurt Parfait",
+    p_id: "price_1OQFupE4gSBdzbVisXMVmyIW",
+  },
 ];
 

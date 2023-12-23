@@ -1,6 +1,19 @@
 import bcrypt from "bcryptjs";
 import * as crypto from "crypto";
 
+interface Meal {
+  _id: string;
+  title: string;
+  description: string;
+  price: number;
+  imageUrl: string;
+}
+
+interface CartItem {
+  meal: Meal;
+  quantity: number;
+}
+
 export async function hashPassword(password: string): Promise<string> {
   const saltRounds = 10;
 
@@ -58,4 +71,17 @@ export function testEmail(email: string) {
 export function testFullName(fullName: string) {
   const invalidCharacters = /[^a-zA-Z\s]/;
   return !invalidCharacters.test(fullName);
+}
+
+export function calculateTotal(cart: CartItem[]): number {
+  const subTotal: number = cart.reduce(
+    (sub, cartItem) => sub + cartItem.meal.price * cartItem.quantity,
+    0
+  );
+
+  const taxRate = subTotal > 100 ? 0.05 : 0.1;
+  const taxFee = subTotal * taxRate;
+  const total = subTotal + taxFee;
+  const totalInCents = Math.round(total * 100);
+  return totalInCents;
 }

@@ -1,3 +1,4 @@
+import { mergeCarts } from "@/lib/actions/user.actions";
 import User from "@/lib/models/user.model";
 import { connectToDB } from "@/lib/mongoose";
 import { comparePassword } from "@/lib/utils";
@@ -60,8 +61,8 @@ export const authOptions: NextAuthOptions = {
           if (!user.isVerified) {
             throw new Error("Email not verified!");
           }
-          if(!user.password) {
-            throw new Error("Login with Google!");
+          if (!user.password) {
+            throw new Error("Use Google Login!");
           }
           const isPasswordValid = await comparePassword(
             password,
@@ -71,7 +72,9 @@ export const authOptions: NextAuthOptions = {
             throw new Error("Invalid email or password!");
           }
 
-          //merrge carts
+          //merge carts
+          mergeCarts(user._id.toString());
+
           const userInfo = {
             id: user._id,
             name: user.name,
@@ -112,11 +115,11 @@ export const authOptions: NextAuthOptions = {
       user,
       account,
       profile,
-    }:{
+    }: {
       user: NextAuthUser | AdapterUser;
       account: Account | null;
       profile?: ExtendedProfile | undefined;
-    }){
+    }) {
       // console.log("<-----(params)----->", user);
       // console.log("<-----(params.profile)----->", profile);
       if (account?.provider === "google") {
@@ -138,6 +141,7 @@ export const authOptions: NextAuthOptions = {
               throw new Error("Error updating user");
             }
             user.id = updatedUser._id;
+            mergeCarts(updatedUser._id.toString());
             return true;
           } else {
             const newUser = await User.create({
@@ -150,6 +154,7 @@ export const authOptions: NextAuthOptions = {
               throw new Error("Error creating user");
             }
             user.id = newUser._id;
+            mergeCarts(newUser._id.toString());
             return true;
           }
         } catch (err: any) {
@@ -160,11 +165,10 @@ export const authOptions: NextAuthOptions = {
       if (account?.provider === "credentials") {
         if (user) {
           return true;
-        }else{
-          return false
+        } else {
+          return false;
         }
-      }
-      else {
+      } else {
         return false;
       }
     },
