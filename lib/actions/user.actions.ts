@@ -517,25 +517,6 @@ export async function mergeCarts(id: string): Promise<void> {
     }
   });
 }
-export async function resetCart(): Promise<void> {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const session = await getServerSession(authOptions);
-      await connectToDB();
-
-      if (session?.user) {
-        const userId = session?.user.id;
-        await User.updateOne({ _id: userId }, { $set: { cart: [] } });
-        revalidatePath("/cart");
-        resolve();
-      } else {
-        console.error("error resetting cart!");
-      }
-    } catch (err: any) {
-      console.error(err);
-    }
-  });
-}
 export async function checkout(): Promise<string> {
   return new Promise(async (resolve, reject) => {
     if (!process.env.STRIPE_SECRET_KEY) {
