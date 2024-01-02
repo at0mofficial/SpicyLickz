@@ -565,8 +565,8 @@ export async function checkout(): Promise<string> {
         customer_email: `${session.user.email}`,
         mode: "payment",
         line_items: lineItems,
-        success_url: `http://localhost:3000/payment_success/{CHECKOUT_SESSION_ID}`,
-        cancel_url: `http://localhost:3000/payment_failed/{CHECKOUT_SESSION_ID}`,
+        success_url: `${process.env.NEXTAUTH_URL}/payment_success/{CHECKOUT_SESSION_ID}`,
+        cancel_url: `${process.env.NEXTAUTH_URL}/payment_failed/{CHECKOUT_SESSION_ID}`,
       };
       const checkoutSession: Stripe.Checkout.Session =
         await stripe.checkout.sessions.create(params);

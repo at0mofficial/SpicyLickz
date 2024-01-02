@@ -34,17 +34,6 @@
   .card-wrapper {
     @apply grid xl:grid-cols-3 lg:grid-cols-3 sm:grid-cols-2 grid-cols-1 justify-items-center md:px-4 xs:px-3 gap-5 px-2;
   }
-  .dragging {
-    @apply cursor-grab select-none;
-  }
-  .button-with-image:hover .hidden-image {
-    display: inline-block;
-  }
-
-  .login-background {
-    background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.3)),
-      url(/login_background.jpg);
-  }
 }
 
 ::-webkit-scrollbar {
