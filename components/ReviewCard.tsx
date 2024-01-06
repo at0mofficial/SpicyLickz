@@ -25,6 +25,7 @@ const ReviewCard = ({
           alt="User Image"
           draggable="false"
           fill
+          sizes="200px"
           className="object-cover border-[3px] border-zinc-400 p-[2px] rounded-full"
         />
       </div>

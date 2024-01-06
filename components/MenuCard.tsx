@@ -38,6 +38,7 @@ const MenuCard = ({
           src={`/${imageUrl}`}
           alt={`${title}`}
           fill
+          sizes="(max-width: 639px) 90vw, (max-width: 1023px) 50vw, 33vw"
           className="object-cover object-center rounded-t-lg"
         />
       </div>

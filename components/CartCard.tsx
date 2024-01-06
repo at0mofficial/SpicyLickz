@@ -62,13 +62,14 @@ const CartCard = ({
           src={`/${imageUrl}`}
           alt={title}
           fill
+          sizes="(max-width: 767px) 100px, (max-width: 1023px) 300px, 150px"
           className="object-cover rounded-[4px] shrink-0"
         />
       </div>
 
       <div className="flex grow flex-col justify-between text-dark">
         <div>
-          <h4 className="text-xl pb-1 font-semibold">{title}</h4>
+          <h3 className="text-xl pb-1 font-semibold">{title}</h3>
           <p className="text-base text-gray">{description}</p>
         </div>
 
