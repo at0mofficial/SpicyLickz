@@ -20,6 +20,7 @@ const MenuCard = ({
   const handleAddToCart = async () => {
     try {
       await addMealToCart(id);
+      toast.success("Item Added to cart!");
     } catch (err: any) {
       toast.error(err.message);
     }

@@ -11,7 +11,7 @@ const Hero = () => {
         muted
         loop
         src="hero-video.mp4"
-        poster="hero-cover.png"
+        poster="hero-cover.webp"
         className="absolute -z-10 w-full h-full object-cover"
       ></video>
         <div className="py-[100px] px-[50px] max-w-[80%]">

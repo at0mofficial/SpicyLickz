@@ -16,7 +16,6 @@ interface MealsByCategory {
 }
 
 export async function uploadAllMeals(): Promise<void> {
-  return new Promise(async (resolve, reject) => {
     const allMeals = meals;
     try {
       connectToDB();
@@ -41,29 +40,24 @@ export async function uploadAllMeals(): Promise<void> {
         }
       });
       console.log(`All meals uploaded`);
-      resolve();
+      return;
     } catch (err: any) {
       console.error(`${err}`);
-      reject(new Error(`Failded to upload all meals!`));
+      throw new Error(`Failded to upload all meals!`);
     }
-  });
 }
 
 export async function getTopMeals(): Promise<Meal[]> {
-  return new Promise(async (resolve, reject) => {
-    try {
-      connectToDB();
-      const topMeals = await Meal.find({ topMeal: true });
-      resolve(topMeals);
-    } catch (err: any) {
-      console.error(`${err}`);
-      reject(new Error(`Failded to fetch top meals!`));
-    }
-  });
+  try {
+    connectToDB();
+    const topMeals = await Meal.find({ topMeal: true });
+    return topMeals;
+  } catch (err: any) {
+    throw new Error(`Failded to fetch top meals!`);
+  }
 }
 
 export async function getMealsByCategory(): Promise<MealsByCategory[]> {
-  return new Promise(async (resolve, reject) => {
     try {
       connectToDB();
 
@@ -90,10 +84,9 @@ export async function getMealsByCategory(): Promise<MealsByCategory[]> {
           )
         )
         .filter((categoryData) => categoryData !== undefined);
-      resolve(orderedMealsByCategory);
+      return(orderedMealsByCategory);
     } catch (err: any) {
       console.error(`${err}`);
-      reject(new Error(`Failed to get meals by category!`));
+      throw new Error(`Failed to get meals by category!`);
     }
-  });
 }

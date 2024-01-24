@@ -1,15 +1,15 @@
-import feature1 from "@/public/feature1.jpg";
-import feature2 from "@/public/feature2.jpg";
-import feature3 from "@/public/feature3.jpg";
+import feature1 from "@/public/feature1.webp";
+import feature2 from "@/public/feature2.webp";
+import feature3 from "@/public/feature3.webp";
 import youtube from "@/public/youtube_logo.svg";
 import slack from "@/public/slack_logo.svg";
 import instagram from "@/public/instagram_logo.svg";
 import x from "@/public/x_logo.svg";
-import person1 from "@/public/person1.jpg";
-import person2 from "@/public/person2.jpg";
-import person3 from "@/public/person3.jpg";
-import person4 from "@/public/person4.jpg";
-import person5 from "@/public/person5.jpg";
+import person1 from "@/public/person1.webp";
+import person2 from "@/public/person2.webp";
+import person3 from "@/public/person3.webp";
+import person4 from "@/public/person4.webp";
+import person5 from "@/public/person5.webp";
 
 export const featureItems = [
   {
@@ -112,7 +112,7 @@ export const meals = [
     price: 19.99,
     cookingTime: 25,
     servings: 2,
-    imageUrl: "Sautéed_Ground_Pork_over_Jasmine_Rice.jpg",
+    imageUrl: "Sautéed_Ground_Pork_over_Jasmine_Rice.webp",
     topMeal: false,
   },
   {
@@ -123,7 +123,7 @@ export const meals = [
     price: 5.99,
     cookingTime: 15,
     servings: 2,
-    imageUrl: "French_Toast.jpg",
+    imageUrl: "French_Toast.webp",
     topMeal: true,
   },
   {
@@ -135,7 +135,7 @@ export const meals = [
     price: 23.99,
     cookingTime: 35,
     servings: 1,
-    imageUrl: "Grilled_Shrimp.jpg",
+    imageUrl: "Grilled_Shrimp.webp",
     topMeal: false,
   },
   {
@@ -146,7 +146,7 @@ export const meals = [
     price: 19.99,
     cookingTime: 25,
     servings: 2,
-    imageUrl: "Chilly_Chicken.jpg",
+    imageUrl: "Chilly_Chicken.webp",
     topMeal: true,
   },
   {
@@ -158,7 +158,7 @@ export const meals = [
     price: 20.99,
     cookingTime: 15,
     servings: 3,
-    imageUrl: "Spicy_Spaghetti.jpg",
+    imageUrl: "Spicy_Spaghetti.webp",
     topMeal: false,
   },
   {
@@ -169,7 +169,7 @@ export const meals = [
     price: 19.99,
     cookingTime: 25,
     servings: 2,
-    imageUrl: "Black_Bean_Tostadas.jpg",
+    imageUrl: "Black_Bean_Tostadas.webp",
     topMeal: false,
   },
   {
@@ -181,7 +181,7 @@ export const meals = [
     price: 15.99,
     cookingTime: 15,
     servings: 2,
-    imageUrl: "Arroz_Con_Pollo.jpg",
+    imageUrl: "Arroz_Con_Pollo.webp",
     topMeal: false,
   },
   {
@@ -193,7 +193,7 @@ export const meals = [
     price: 17.99,
     cookingTime: 30,
     servings: 2,
-    imageUrl: "Chicken_Alfredo.jpg",
+    imageUrl: "Chicken_Alfredo.webp",
     topMeal: true,
   },
   {
@@ -204,7 +204,7 @@ export const meals = [
     price: 22.99,
     cookingTime: 20,
     servings: 2,
-    imageUrl: "Mango_Salsa_Salmon.jpg",
+    imageUrl: "Mango_Salsa_Salmon.webp",
     topMeal: true,
   },
   {
@@ -215,7 +215,7 @@ export const meals = [
     price: 14.99,
     cookingTime: 10,
     servings: 2,
-    imageUrl: "Caprese_Salad.jpg",
+    imageUrl: "Caprese_Salad.webp",
     topMeal: false,
   },
   {
@@ -226,7 +226,7 @@ export const meals = [
     price: 16.99,
     cookingTime: 20,
     servings: 3,
-    imageUrl: "Vegetable_Stir-Fry.jpg",
+    imageUrl: "Vegetable_Stir-Fry.webp",
     topMeal: false,
   },
   {
@@ -238,7 +238,7 @@ export const meals = [
     price: 15.99,
     cookingTime: 25,
     servings: 3,
-    imageUrl: "Beef_Tacos.jpg",
+    imageUrl: "Beef_Tacos.webp",
     topMeal: false,
   },
   {
@@ -250,7 +250,7 @@ export const meals = [
     price: 18.99,
     cookingTime: 35,
     servings: 2,
-    imageUrl: "Penne_alla_Vodka.jpg",
+    imageUrl: "Penne_alla_Vodka.webp",
     topMeal: false,
   },
   {
@@ -261,7 +261,7 @@ export const meals = [
     price: 25.99,
     cookingTime: 40,
     servings: 2,
-    imageUrl: "Lobster_Bisque.jpg",
+    imageUrl: "Lobster_Bisque.webp",
     topMeal: true,
   },
   {
@@ -273,7 +273,7 @@ export const meals = [
     price: 19.99,
     cookingTime: 40,
     servings: 2,
-    imageUrl: "Mushroom_Risotto.jpg",
+    imageUrl: "Mushroom_Risotto.webp",
     topMeal: true,
   },
   {
@@ -285,7 +285,7 @@ export const meals = [
     price: 20.99,
     cookingTime: 45,
     servings: 2,
-    imageUrl: "Eggplant_Parmesan.jpg",
+    imageUrl: "Eggplant_Parmesan.webp",
     topMeal: false,
   },
   {
@@ -296,7 +296,7 @@ export const meals = [
     price: 6.99,
     cookingTime: 20,
     servings: 1,
-    imageUrl: "Breakfast_Burrito.jpg",
+    imageUrl: "Breakfast_Burrito.webp",
     topMeal: false,
   },
   {
@@ -307,7 +307,7 @@ export const meals = [
     price: 8.99,
     cookingTime: 25,
     servings: 2,
-    imageUrl: "Pancakes_and_Bacon.jpg",
+    imageUrl: "Pancakes_and_Bacon.webp",
     topMeal: false,
   },
   {
@@ -318,7 +318,7 @@ export const meals = [
     price: 7.99,
     cookingTime: 15,
     servings: 1,
-    imageUrl: "Veggie_Omelette.jpg",
+    imageUrl: "Veggie_Omelette.webp",
     topMeal: false,
   },
   {
@@ -330,7 +330,7 @@ export const meals = [
     price: 4.99,
     cookingTime: 5,
     servings: 1,
-    imageUrl: "Greek_Yogurt_Parfait.jpg",
+    imageUrl: "Greek_Yogurt_Parfait.webp",
     topMeal: false,
   },
 ];

@@ -14,25 +14,26 @@ import { useRef } from "react";
 
 const UserProfile = () => {
   const { startUpload } = useUploadThing("profileImage", {
-    onUploadBegin: ()=>{
-      setLoading(true);
+    onUploadBegin: () => {
+      setImageUpdating(true);
     },
     onClientUploadComplete: () => {
       toast.success("Profile saved");
     },
     onUploadError: () => {
-      setLoading(false);
-      toast.error('Error uploading image');
+      setImageUpdating(false);
+      toast.error("Error uploading image");
     },
   });
   const { data: session, status, update } = useSession();
-  const userImage = session?.user?.image || "/no-user.jpg";
+  const userImage = session?.user?.image || "/no-user.webp";
   const userEmail = session?.user?.email || "";
   const userName = session?.user?.name || "";
   const userProvince = "Ontario";
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [loading, setLoading] = useState(true);
+  const [imgUpdating, setImageUpdating] = useState(false);
 
   // State variables for user address
   const [streetAddress, setStreetAddress] = useState("");
@@ -81,19 +82,18 @@ const UserProfile = () => {
 
         setLoading(false);
       } catch (error) {
-        console.error("Error fetching user address:", error);
-        setLoading(false);
+        throw new Error("Encountered an error! Please try again later.");
       }
     };
 
     fetchAddress();
   }, []);
 
-  const updateSession = async (img:string)=>{
+  const updateSession = async (img: string) => {
     await update({
-      image: img
-      })
-    }
+      image: img,
+    });
+  };
 
   const handleInputChange = (field: string, value: string) => {
     switch (field) {
@@ -259,12 +259,10 @@ const UserProfile = () => {
               if (file) {
                 try {
                   const res = await startUpload([file]);
-                  if(res && res[0].serverData){
+                  if (res && res[0].serverData) {
                     await updateSession(res[0].serverData);
-                    setLoading(false);
+                    setImageUpdating(false);
                   }
-                  console.log(res);
-                  
                 } catch (err: any) {
                   toast.error(err.message);
                 }
@@ -273,23 +271,30 @@ const UserProfile = () => {
             ref={fileInputRef}
             className="hidden"
           />
-          <div
-            onClick={() => {
-              fileInputRef.current?.click();
-            }}
-            className="relative group cursor-pointer"
-          >
-            <Image
-              src={userImage}
-              alt="profile picture"
-              width={140}
-              height={140}
-              className="shrink-0 aspect-square rounded-full"
-            />
-            <div className="absolute flex opacity-0 inset-0 group-hover:opacity-100 items-center justify-center bg-black bg-opacity-40 transition-all duration-200 ease-in rounded-full">
-              <span className="text-white text-sm">Change Photo</span>
+          {imgUpdating ? (
+            <div className="flex items-center justify-center w-[140px] bg-[#f1f1f1] aspect-square rounded-full">
+              <ClipLoader color="#ff2f00" size={20} speedMultiplier={2} />
             </div>
-          </div>
+          ) : (
+            <div
+              onClick={() => {
+                fileInputRef.current?.click();
+              }}
+              className="relative group cursor-pointer"
+            >
+              <Image
+                src={userImage}
+                alt="profile picture"
+                width={140}
+                height={140}
+                className="shrink-0 aspect-square rounded-full"
+              />
+
+              <div className="absolute flex opacity-0 inset-0 group-hover:opacity-100 items-center justify-center bg-black bg-opacity-40 transition-all duration-200 ease-in rounded-full">
+                <span className="text-white text-sm">Change Photo</span>
+              </div>
+            </div>
+          )}
 
           <div className="text-center">
             <h1 className="text-2xl text-dark font-semibold">{userName}</h1>
