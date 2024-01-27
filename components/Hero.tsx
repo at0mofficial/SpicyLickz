@@ -19,7 +19,7 @@ const Hero = () => {
         ></source>
         <source src="vidMobile.mp4" type="video/mp4"></source>
       </video>
-      <div className="lg:mt-[100px] md:mt-[85px] mt-[60px] md:px-[70px] py-[65px] px-[40px] lg:max-w-[80%]">
+      <div className="md:px-[70px] py-[65px] px-[40px] lg:max-w-[80%]">
         <h1 className="lg:text-[70px] md:text-[64px] text-[48px] md:leading-[84px] leading-[60px] text-white font-bold uppercase">
           Want some <span className="text-primary">spice</span> in your life?
         </h1>
