@@ -32,7 +32,7 @@
     @apply uppercase tracking-[1px] text-white px-5 py-2.5 border-2 border-primary transition-all ease-in-out duration-100 hover:bg-primary;
   }
   .card-wrapper {
-    @apply grid xl:grid-cols-3 lg:grid-cols-3 sm:grid-cols-2 grid-cols-1 justify-items-center md:px-4 xs:px-3 gap-5 px-2;
+    @apply grid xl:grid-cols-3 lg:grid-cols-3 sm:grid-cols-2 grid-cols-1 justify-items-center md:px-4 xl:px-8 xs:px-3 gap-5 px-2;
   }
 }
 

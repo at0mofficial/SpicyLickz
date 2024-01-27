@@ -6,12 +6,12 @@ const TopPicks = async () => {
   const topPicks = await getTopMeals();
   if(topPicks){
     return (
-      <section  className="flex flex-col justify-center items-center px-2 py-16">
-        <h2 id='top-meals' className="text-[50px] font-extrabold text-dark uppercase">
+      <section id='top-meals' className="flex flex-col justify-center items-center px-2 py-16">
+        <h2 className="text-[50px] font-extrabold text-dark uppercase">
           Top Picks
         </h2>
         <div className="bg-primary h-[2px] w-[80px]"></div>
-        <div className="mt-14 w-full card-wrapper">
+        <div className="mt-12 w-full card-wrapper">
           {topPicks.map((meal: any) => (
             <MenuCard
               key={meal._id}
