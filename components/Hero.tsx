@@ -3,7 +3,7 @@ import Link from "next/link";
 
 const Hero = () => {
   return (
-    <section className="flex items-center relative lg:h-screen md:min-h-[600px] min-h-[400px] lg:min-h-[700px]">
+    <section className="flex items-center relative lg:h-screen min-h-[565px] md:min-h-[700px]">
       <video
         autoPlay
         playsInline
@@ -23,12 +23,12 @@ const Hero = () => {
         <h1 className="lg:text-[70px] md:text-[64px] text-[48px] md:leading-[84px] leading-[60px] text-white font-bold uppercase">
           Want some <span className="text-primary">spice</span> in your life?
         </h1>
-        <p className="text-white text-base font-normal mb-7 md:max-w-[80%]">
+        <p className="text-white mt-4 text-base font-normal mb-7 md:max-w-[80%]">
           One of the most spiciest yet delicious recipies from all around the
           globe with carefully handpicked ingredients right at your doorstep
           every week.
         </p>
-        <Link href="#top-meals" className="btn-primary">
+        <Link href="#top-meals" className="btn-primary inline-block">
           Get started
         </Link>
       </div>
